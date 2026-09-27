@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminEligible from './pages/AdminEligible'
 import AdminMembers from './pages/AdminMembers'
 import AdminMissions from './pages/AdminMissions'
+import AdminReportDetail from './pages/AdminReportDetail'
 import AdminReports from './pages/AdminReports'
 import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
@@ -52,6 +53,7 @@ function App() {
             <Route path="/admin/eligibles" element={<ProtectedRoute roles={['admin', 'founder']}><AdminEligible /></ProtectedRoute>} />
             <Route path="/admin/missions" element={<ProtectedRoute roles={['admin', 'founder']}><AdminMissions /></ProtectedRoute>} />
             <Route path="/admin/rapports" element={<ProtectedRoute roles={['admin', 'founder']}><AdminReports /></ProtectedRoute>} />
+            <Route path="/admin/rapports/:id" element={<ProtectedRoute roles={['admin', 'founder']}><AdminReportDetail /></ProtectedRoute>} />
             <Route path="/founder" element={<ProtectedRoute roles={['founder']}><FounderDashboard /></ProtectedRoute>} />
             <Route path="/founder/administrateurs" element={<ProtectedRoute roles={['founder']}><FounderAdministrators /></ProtectedRoute>} />
             <Route path="/leader/missions" element={<ProtectedRoute roles={['leader']}><LeaderMissions /></ProtectedRoute>} />
@@ -59,6 +61,7 @@ function App() {
             <Route path="/leader/activites" element={<ProtectedRoute roles={['leader']}><LeaderActivities /></ProtectedRoute>} />
             <Route path="/leader/rapports" element={<ProtectedRoute roles={['leader']}><LeaderReports /></ProtectedRoute>} />
             <Route path="/leader/rapports/nouveau" element={<ProtectedRoute roles={['leader']}><LeaderReportNew /></ProtectedRoute>} />
+            <Route path="/leader/rapports/:id/modifier" element={<ProtectedRoute roles={['leader']}><LeaderReportEdit /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

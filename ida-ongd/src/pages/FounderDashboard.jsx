@@ -1,7 +1,25 @@
 import { Activity, Building2, ShieldCheck, Users, Warehouse } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { getDashboardStats } from '../lib/phase5'
 
 export default function FounderDashboard() {
+  const [stats, setStats] = useState({ totalMembers: 0, leaders: 0, admins: 0, neighborhoods: 0, activeMembers: 0, activeMissions: 0, completedMissions: 0, pendingReports: 0, validatedReports: 0, correctionReports: 0, activities: 0, participants: 0 })
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        const data = await getDashboardStats()
+        if (active) setStats(data)
+      } catch {
+        if (active) setStats((current) => current)
+      }
+    }
+    void load()
+    return () => { active = false }
+  }, [])
+
   return (
     <main className="page-section dashboard-page">
       <div className="container">
@@ -14,10 +32,12 @@ export default function FounderDashboard() {
         </div>
 
         <div className="stats-grid">
-          <div className="stats-card"><span className="stats-accent stats-green" /><div><p>Vue générale</p><strong>—</strong></div></div>
-          <div className="stats-card"><span className="stats-accent stats-blue" /><div><p>Membres</p><strong>—</strong></div></div>
-          <div className="stats-card"><span className="stats-accent stats-gold" /><div><p>Administrateurs</p><strong>—</strong></div></div>
-          <div className="stats-card"><span className="stats-accent stats-navy" /><div><p>Leaders</p><strong>—</strong></div></div>
+          <div className="stats-card"><span className="stats-accent stats-green" /><div><p>Membres</p><strong>{stats.totalMembers}</strong></div></div>
+          <div className="stats-card"><span className="stats-accent stats-blue" /><div><p>Leaders</p><strong>{stats.leaders}</strong></div></div>
+          <div className="stats-card"><span className="stats-accent stats-gold" /><div><p>Administrateurs</p><strong>{stats.admins}</strong></div></div>
+          <div className="stats-card"><span className="stats-accent stats-navy" /><div><p>Quartiers</p><strong>{stats.neighborhoods}</strong></div></div>
+          <div className="stats-card"><span className="stats-accent stats-green" /><div><p>Missions</p><strong>{stats.activeMissions}</strong></div></div>
+          <div className="stats-card"><span className="stats-accent stats-blue" /><div><p>Rapports validés</p><strong>{stats.validatedReports}</strong></div></div>
         </div>
 
         <div className="admin-layout">

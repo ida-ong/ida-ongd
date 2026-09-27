@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/useAuth'
 import StatsCard from '../components/StatsCard'
-import { getAdminStats } from '../lib/admin'
+import { getDashboardStats } from '../lib/phase5'
 
 export default function AdminDashboard() {
   const { profile } = useAuth()
-  const [stats, setStats] = useState({ totalMembers: 0, leaders: 0, admins: 0, neighborhoods: 0, eligible: 0, active: 0 })
+  const [stats, setStats] = useState({ totalMembers: 0, leaders: 0, admins: 0, neighborhoods: 0, activeMembers: 0, activeMissions: 0, completedMissions: 0, pendingReports: 0, validatedReports: 0, correctionReports: 0, activities: 0, participants: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let active = true
     async function loadStats() {
       try {
-        const data = await getAdminStats()
+        const data = await getDashboardStats()
         if (!active) return
         setStats(data)
       } finally {
@@ -37,12 +37,17 @@ export default function AdminDashboard() {
         </div>
 
         <div className="stats-grid">
-          <StatsCard label="Total membres" value={loading ? '…' : stats.totalMembers} accent="green" />
+          <StatsCard label="Membres actifs" value={loading ? '…' : stats.activeMembers} accent="green" />
           <StatsCard label="Leaders" value={loading ? '…' : stats.leaders} accent="blue" />
           <StatsCard label="Administrateurs" value={loading ? '…' : stats.admins} accent="gold" />
           <StatsCard label="Quartiers" value={loading ? '…' : stats.neighborhoods} accent="navy" />
-          <StatsCard label="Éligibles" value={loading ? '…' : stats.eligible} accent="green" />
-          <StatsCard label="Actifs" value={loading ? '…' : stats.active} accent="blue" />
+          <StatsCard label="Missions en cours" value={loading ? '…' : stats.activeMissions} accent="green" />
+          <StatsCard label="Missions terminées" value={loading ? '…' : stats.completedMissions} accent="blue" />
+          <StatsCard label="Rapports en attente" value={loading ? '…' : stats.pendingReports} accent="gold" />
+          <StatsCard label="Rapports validés" value={loading ? '…' : stats.validatedReports} accent="green" />
+          <StatsCard label="Rapports à corriger" value={loading ? '…' : stats.correctionReports} accent="navy" />
+          <StatsCard label="Activités" value={loading ? '…' : stats.activities} accent="blue" />
+          <StatsCard label="Participants" value={loading ? '…' : stats.participants} accent="gold" />
         </div>
 
         <div className="admin-layout">
