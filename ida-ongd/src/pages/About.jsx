@@ -22,10 +22,10 @@ export default function About() {
     <main className="page-section inner-page">
       <div className="container">
         <SectionTitle eyebrow="Notre organisation" title="À propos d’IDA">
-          Initiative Dignité Autonomiser — agir avec et pour les communautés.
+          Initiative Dignité Autonomisation — agir avec et pour les communautés.
         </SectionTitle>
         <div className="about-page-copy">
-          <p>IDA — Initiative Dignité Autonomiser est une organisation non gouvernementale de développement à vocation humanitaire qui œuvre pour contribuer à l’amélioration des conditions de vie des enfants, des jeunes et des femmes en situation de vulnérabilité.</p>
+          <p>IDA — Initiative Dignité Autonomisation est une organisation non gouvernementale de développement à vocation humanitaire qui œuvre pour contribuer à l’amélioration des conditions de vie des enfants, des jeunes et des femmes en situation de vulnérabilité.</p>
           <p>L’organisation agit actuellement à Lubumbashi, en République démocratique du Congo, à travers des actions de protection, de sensibilisation, d’éducation, d’autonomisation et de mobilisation communautaire.</p>
           <p>IDA encourage la participation active des communautés afin d’identifier les problèmes, développer des réponses adaptées et contribuer durablement au développement local.</p>
           <p><strong>Créée le 26 septembre 2026.</strong></p>

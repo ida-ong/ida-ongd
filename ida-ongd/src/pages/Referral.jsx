@@ -35,7 +35,7 @@ export default function Referral() {
         <span className="referral-invite-icon"><HeartHandshake size={31} /></span>
         <span className="eyebrow">Invitation communautaire · <MapPin size={14} /> Lubumbashi</span>
         <h1>Vous êtes invité(e) à rejoindre la communauté IDA</h1>
-        <p className="referral-invite-lead">Initiative Dignité Autonomiser mobilise les communautés de Lubumbashi autour de la protection, de l’éducation, de l’autonomisation et du développement communautaire.</p>
+        <p className="referral-invite-lead">Initiative Dignité Autonomisation mobilise les communautés de Lubumbashi autour de la protection, de l’éducation, de l’autonomisation et du développement communautaire.</p>
 
         {state.status === 'loading' && <p className="form-notice notice-info" role="status">Vérification de votre invitation…</p>}
         {state.status === 'valid' && <p className="form-notice notice-success" role="status">Invitation partagée par <strong>{[state.inviter?.first_name, state.inviter?.last_name].filter(Boolean).join(' ') || 'un membre IDA'}</strong>.</p>}

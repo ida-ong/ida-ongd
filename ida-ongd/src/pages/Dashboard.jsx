@@ -52,7 +52,7 @@ export default function Dashboard() {
   }
 
   const whatsappLink = affiliateLink
-    ? `https://wa.me/?text=${encodeURIComponent(`Je participe aux actions communautaires de l’ONGD IDA — Initiative Dignité Autonomiser à Lubumbashi. Découvre l’initiative et rejoins-nous : ${affiliateLink}`)}`
+    ? `https://wa.me/?text=${encodeURIComponent(`Je participe aux actions communautaires de l’ONGD IDA — Initiative Dignité Autonomisation à Lubumbashi. Découvre l’initiative et rejoins-nous : ${affiliateLink}`)}`
     : undefined
 
   return <main className="dashboard-page page-section"><div className="container">
