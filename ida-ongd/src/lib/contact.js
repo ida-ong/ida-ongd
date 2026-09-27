@@ -1,0 +1,2 @@
+export const WHATSAPP_NUMBER = '+243903179957'
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, '')}?text=${encodeURIComponent('Bonjour, je souhaite en savoir plus sur IDA.')}`

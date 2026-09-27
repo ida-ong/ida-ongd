@@ -1,0 +1,113 @@
+import { Activity, ClipboardList, ShieldCheck, Users, Warehouse } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../auth/useAuth'
+import StatsCard from '../components/StatsCard'
+import { getAdminStats } from '../lib/admin'
+
+export default function AdminDashboard() {
+  const { profile } = useAuth()
+  const [stats, setStats] = useState({ totalMembers: 0, leaders: 0, admins: 0, neighborhoods: 0, eligible: 0, active: 0 })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    async function loadStats() {
+      try {
+        const data = await getAdminStats()
+        if (!active) return
+        setStats(data)
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    void loadStats()
+    return () => { active = false }
+  }, [])
+
+  return (
+    <main className="page-section dashboard-page">
+      <div className="container">
+        <div className="dashboard-heading">
+          <div>
+            <span className="eyebrow">Espace administration</span>
+            <h1>Vue générale</h1>
+          </div>
+          <span className="role-pill"><ShieldCheck size={16} /> {profile?.role === 'founder' ? 'Fondateur' : 'Administrateur'}</span>
+        </div>
+
+        <div className="stats-grid">
+          <StatsCard label="Total membres" value={loading ? '…' : stats.totalMembers} accent="green" />
+          <StatsCard label="Leaders" value={loading ? '…' : stats.leaders} accent="blue" />
+          <StatsCard label="Administrateurs" value={loading ? '…' : stats.admins} accent="gold" />
+          <StatsCard label="Quartiers" value={loading ? '…' : stats.neighborhoods} accent="navy" />
+          <StatsCard label="Éligibles" value={loading ? '…' : stats.eligible} accent="green" />
+          <StatsCard label="Actifs" value={loading ? '…' : stats.active} accent="blue" />
+        </div>
+
+        <div className="admin-layout">
+          <section className="admin-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Membres</span>
+                <h2>Liste et suivi</h2>
+              </div>
+              <Users size={22} />
+            </div>
+            <p className="lead">Gérer les profils, les rôles et la progression communautaire.</p>
+            <div className="panel-actions">
+              <Link to="/admin/membres" className="button button-primary">Voir les membres</Link>
+              <Link to="/admin/eligibles" className="button button-outline">Voir les éligibles</Link>
+            </div>
+          </section>
+
+          <section className="admin-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Leaders</span>
+                <h2>Nomination</h2>
+              </div>
+              <ShieldCheck size={22} />
+            </div>
+            <p className="muted-text">La nomination d’un leader est réservée aux administrateurs autorisés et ne se fait pas automatiquement.</p>
+          </section>
+
+          <section className="admin-panel full-width">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Réseaux</span>
+                <h2>Suivi et éligibilité</h2>
+              </div>
+              <Warehouse size={22} />
+            </div>
+            <p className="muted-text">Les statistiques sont calculées à partir des données Supabase. La nomination ou la progression ne modifie pas automatiquement le rôle.</p>
+          </section>
+
+          <section className="admin-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Missions</span>
+                <h2>À préparer</h2>
+              </div>
+              <ClipboardList size={22} />
+            </div>
+              <p className="muted-text">Créer, assigner et suivre les missions destinées aux leaders communautaires.</p>
+              <Link to="/admin/missions" className="button button-primary">Gérer les missions</Link>
+          </section>
+
+          <section className="admin-panel">
+            <div className="panel-header">
+              <div>
+                <span className="eyebrow">Actualités</span>
+                <h2>Tableau de bord</h2>
+              </div>
+              <Activity size={22} />
+            </div>
+            <p className="muted-text">Consulter les rapports envoyés et suivre leur validation.</p>
+            <Link to="/admin/rapports" className="button button-outline">Voir les rapports</Link>
+          </section>
+        </div>
+      </div>
+    </main>
+  )
+}
