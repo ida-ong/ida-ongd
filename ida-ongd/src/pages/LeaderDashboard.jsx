@@ -1,10 +1,27 @@
 import { Activity, BarChart3, Users, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/useAuth'
 import StatsCard from '../components/StatsCard'
+import { getLeaderDashboardSummary } from '../lib/phase5'
 
 export default function LeaderDashboard() {
   const { profile } = useAuth()
+  const [summary, setSummary] = useState({ missionsInProgress: 0, missionsCompleted: 0, reportsToFix: 0, reportsValidated: 0, activitiesCount: 0 })
+
+  useEffect(() => {
+    let active = true
+    async function load() {
+      try {
+        const data = await getLeaderDashboardSummary()
+        if (active) setSummary(data)
+      } catch {
+        if (active) setSummary({ missionsInProgress: 0, missionsCompleted: 0, reportsToFix: 0, reportsValidated: 0, activitiesCount: 0 })
+      }
+    }
+    void load()
+    return () => { active = false }
+  }, [])
 
   return (
     <main className="page-section dashboard-page">
@@ -18,10 +35,12 @@ export default function LeaderDashboard() {
         </div>
 
         <div className="stats-grid">
-          <StatsCard label="Mon réseau" value="—" />
-          <StatsCard label="Membres directs" value="—" />
-          <StatsCard label="Quartier" value={profile?.neighborhood_id ? 'Enregistré' : 'À compléter'} />
-          <StatsCard label="Progression" value="—" />
+          <StatsCard label="Missions en cours" value={summary.missionsInProgress} />
+          <StatsCard label="Missions terminées" value={summary.missionsCompleted} accent="green" />
+          <StatsCard label="Rapports à corriger" value={summary.reportsToFix} accent="gold" />
+          <StatsCard label="Rapports validés" value={summary.reportsValidated} accent="blue" />
+          <StatsCard label="Activités" value={summary.activitiesCount} accent="navy" />
+          <StatsCard label="Quartier" value={profile?.neighborhood_id ? 'Enregistré' : 'À compléter'} accent="green" />
         </div>
 
         <div className="admin-layout">
@@ -48,12 +67,13 @@ export default function LeaderDashboard() {
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Activités</span>
-                <h2>À venir</h2>
+                <h2>À faire</h2>
               </div>
               <Activity size={22} />
             </div>
             <p className="muted-text">Consultez vos missions, enregistrez les activités réalisées et transmettez vos rapports.</p>
             <div className="panel-actions"><Link to="/leader/missions" className="button button-primary">Mes missions</Link><Link to="/leader/activites" className="button button-outline">Mes activités</Link><Link to="/leader/rapports" className="button button-outline">Mes rapports</Link></div>
+            {summary.reportsToFix > 0 && <p className="form-notice notice-info">{summary.reportsToFix} rapport(s) nécessitent votre attention.</p>}
           </section>
 
           <section className="admin-panel full-width">
@@ -64,7 +84,7 @@ export default function LeaderDashboard() {
               </div>
               <BarChart3 size={22} />
             </div>
-            <p className="muted-text">Le nombre total de personnes, les membres directs et le quartier seront alimentés à partir des données Supabase existantes une fois les politiques et les données disponibles.</p>
+            <p className="muted-text">Les informations de supervision s’alimentent directement depuis les données Supabase selon les permissions du leader.</p>
           </section>
         </div>
       </div>
