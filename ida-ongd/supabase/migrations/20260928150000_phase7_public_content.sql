@@ -46,12 +46,49 @@ create table if not exists public.important_information (
   title text not null check (char_length(btrim(title)) between 3 and 180),
   content text not null check (char_length(btrim(content)) >= 3),
   priority text not null default 'normal' check (priority in ('normal', 'important', 'urgent')),
+  is_active boolean not null default false,
   status text not null default 'draft' check (status in ('draft', 'published', 'archived')),
   published_at timestamptz,
   created_by uuid not null references public.profiles(id) on delete restrict,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- The live project already has important_information with legacy is_active.
+-- Extend it in place and keep that column synchronized for older consumers.
+alter table public.important_information
+  add column if not exists status text not null default 'draft';
+alter table public.important_information
+  add column if not exists priority text not null default 'normal';
+alter table public.important_information
+  add column if not exists is_active boolean not null default false;
+alter table public.important_information
+  add column if not exists published_at timestamptz;
+alter table public.important_information
+  add column if not exists created_by uuid references public.profiles(id) on delete restrict;
+alter table public.important_information
+  add column if not exists created_at timestamptz not null default now();
+alter table public.important_information
+  add column if not exists updated_at timestamptz not null default now();
+
+update public.important_information
+set status = 'published',
+    published_at = coalesce(published_at, created_at, now())
+where is_active is true and status = 'draft';
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.important_information'::regclass
+      and conname = 'important_information_status_check'
+  ) then
+    alter table public.important_information
+      add constraint important_information_status_check
+      check (status in ('draft', 'published', 'archived'));
+  end if;
+end;
+$$;
 
 create index if not exists important_information_publication_idx
   on public.important_information (published_at desc)
@@ -66,6 +103,9 @@ begin
   new.updated_at := now();
   if tg_op = 'UPDATE' then
     new.created_by := old.created_by;
+  end if;
+  if tg_table_name = 'important_information' then
+    new.is_active := (new.status = 'published');
   end if;
   if new.status = 'published' and (tg_op = 'INSERT' or old.status is distinct from 'published') then
     new.published_at := now();
