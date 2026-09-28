@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 
 const tables = {
-  news: 'news_articles',
+  news: 'news',
   actions: 'public_actions',
   information: 'important_information',
 }
@@ -20,7 +20,7 @@ export async function getPublishedContent(type, { limit } = {}) {
   if (limit) query = query.limit(limit)
   const { data, error } = await query
   if (error) throw error
-  return data ?? []
+  return (data ?? []).map((item) => type === 'news' ? { ...item, summary: item.excerpt } : item)
 }
 
 export async function getNewsBySlug(slug) {
@@ -30,7 +30,7 @@ export async function getNewsBySlug(slug) {
     .eq('status', 'published')
     .maybeSingle()
   if (error) throw error
-  return data
+  return data ? { ...data, summary: data.excerpt } : null
 }
 
 export async function getPublicActionById(id) {
@@ -48,15 +48,21 @@ export async function getAdminContent(type) {
     .select('*')
     .order('updated_at', { ascending: false })
   if (error) throw error
-  return data ?? []
+  return (data ?? []).map((item) => type === 'news' ? { ...item, summary: item.excerpt } : item)
 }
 
 export async function saveAdminContent(type, values, userId) {
   const query = tableFor(type)
   const { id, ...fields } = values
+  const payload = type === 'news'
+    ? { ...fields, excerpt: fields.summary, author_id: undefined }
+    : fields
+  if (type === 'news') delete payload.summary
+  if (!id && type === 'news') payload.author_id = userId
+  if (!id && type !== 'news') payload.created_by = userId
   const result = id
-    ? await query.update(fields).eq('id', id).select().single()
-    : await query.insert({ ...fields, created_by: userId }).select().single()
+    ? await query.update(payload).eq('id', id).select().single()
+    : await query.insert(payload).select().single()
   if (result.error) throw result.error
   return result.data
 }

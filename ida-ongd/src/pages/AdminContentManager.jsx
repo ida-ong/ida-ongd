@@ -16,7 +16,6 @@ const configs = {
       { name: 'summary', label: 'Résumé', type: 'textarea', required: true },
       { name: 'content', label: 'Contenu complet', type: 'textarea', required: true, rows: 8 },
       { name: 'image_url', label: 'URL de l’image (facultative)', type: 'url', help: 'Aucun stockage d’image n’est configuré pour le moment.' },
-      { name: 'author', label: 'Auteur', required: true, defaultValue: 'Équipe IDA' },
       { name: 'status', label: 'Statut', type: 'select', required: true, options: [['draft', 'Brouillon'], ['published', 'Publié'], ['archived', 'Archivé']] },
     ],
     description: (item) => item.summary,
