@@ -1,6 +1,8 @@
 export function friendlyAuthError(error) {
   const message = String(error?.message ?? '').toLowerCase()
   const code = String(error?.code ?? '').toLowerCase()
+  if (message.includes('invalid api key') || code === 'invalid_api_key') return 'La clé publique Supabase configurée sur ce site est invalide. Vérifiez VITE_SUPABASE_URL et VITE_SUPABASE_PUBLISHABLE_KEY dans Vercel, puis redéployez.'
+  if (message.includes('api key is required') || message.includes('missing api key')) return 'La clé publique Supabase est absente de la configuration de ce site. Vérifiez VITE_SUPABASE_PUBLISHABLE_KEY dans Vercel, puis redéployez.'
   if (message.includes('already registered') || message.includes('already exists')) return 'Cette adresse email est déjà utilisée.'
   if (message.includes('invalid login credentials')) return 'Adresse email ou mot de passe incorrect.'
   if (message.includes('email not confirmed')) return 'Veuillez confirmer votre adresse email avant de vous connecter.'

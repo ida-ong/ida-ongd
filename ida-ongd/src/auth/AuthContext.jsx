@@ -16,6 +16,28 @@ export function AuthProvider({ children }) {
     if (active()) setAuth((current) => ({ ...current, session, user: session.user, loading: true, profileError: null }))
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+      if (error) {
+        console.error('[IDA] Erreur de lecture du profil Supabase', {
+          stage: 'profile',
+          userId: session.user.id,
+          profileFound: false,
+          message: error.message,
+          code: error.code ?? null,
+          status: error.status ?? null,
+        })
+      } else if (!data) {
+        console.warn('[IDA] Auth réussie mais aucun profil associé à auth.users.id', {
+          stage: 'profile',
+          userId: session.user.id,
+          profileFound: false,
+        })
+      } else {
+        console.info('[IDA] Profil Supabase chargé', {
+          stage: 'profile',
+          userId: session.user.id,
+          profileFound: true,
+        })
+      }
       if (active() && requestId === profileRequestId.current) setAuth({ session, user: session.user, profile: data ?? null, loading: false, profileError: error })
     } catch (error) {
       if (active() && requestId === profileRequestId.current) setAuth({ session, user: session.user, profile: null, loading: false, profileError: error })

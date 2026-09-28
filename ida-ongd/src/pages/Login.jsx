@@ -25,10 +25,32 @@ export default function Login() {
     setMessage('')
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-      if (error) { setMessage(friendlyAuthError(error)); return }
+      if (error) {
+        console.error('[IDA] Échec Supabase Auth', {
+          stage: 'signInWithPassword',
+          message: error.message,
+          code: error.code ?? null,
+          status: error.status ?? null,
+          userId: data?.user?.id ?? null,
+        })
+        setMessage(friendlyAuthError(error))
+        return
+      }
+      console.info('[IDA] Résultat Supabase Auth', {
+        stage: 'signInWithPassword',
+        userId: data?.user?.id ?? null,
+        sessionEstablished: Boolean(data?.session),
+      })
       if (!data.session) { setMessage('La session n’a pas pu être établie. Veuillez réessayer.'); return }
       navigate(location.state?.from?.pathname || '/dashboard', { replace: true })
     } catch (error) {
+      console.error('[IDA] Exception pendant Supabase Auth', {
+        stage: 'signInWithPassword',
+        message: error?.message ?? String(error),
+        code: error?.code ?? null,
+        status: error?.status ?? null,
+        userId: null,
+      })
       setMessage(friendlyAuthError(error))
     } finally {
       setLoading(false)

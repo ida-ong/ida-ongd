@@ -30,6 +30,17 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseKeySource = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  ? 'VITE_SUPABASE_PUBLISHABLE_KEY'
+  : import.meta.env.VITE_SUPABASE_ANON_KEY
+    ? 'VITE_SUPABASE_ANON_KEY'
+    : null
+
+console.info('[IDA] Vérification de configuration Supabase', {
+  urlPresent: Boolean(supabaseUrl),
+  publicKeyPresent: Boolean(supabaseKey),
+  keySource: supabaseKeySource,
+})
 
 function renderStartupError(title, message) {
   root.render(
