@@ -68,12 +68,6 @@ alter table public.important_information add column if not exists created_by uui
 alter table public.important_information add column if not exists created_at timestamptz not null default now();
 alter table public.important_information add column if not exists updated_at timestamptz not null default now();
 
--- Preserve existing active announcements as published when introducing status.
-update public.important_information
-set status = 'published',
-    published_at = coalesce(published_at, created_at, now())
-where is_active is true and status = 'draft';
-
 do $$
 begin
   if not exists (
@@ -87,6 +81,12 @@ begin
   end if;
 end;
 $$;
+
+-- Preserve existing active announcements as published when introducing status.
+update public.important_information
+set status = 'published',
+    published_at = coalesce(published_at, created_at, now())
+where is_active is true and status = 'draft';
 
 create index if not exists important_information_publication_idx
   on public.important_information (published_at desc)
@@ -253,3 +253,6 @@ with check (exists (select 1 from public.profiles p where p.id = auth.uid() and 
 drop policy if exists "ida_phase7_information_restrict_delete" on public.important_information;
 create policy "ida_phase7_information_restrict_delete" on public.important_information as restrictive for delete to authenticated
 using (exists (select 1 from public.profiles p where p.id = auth.uid() and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')));
+
+-- Refresh PostgREST's schema cache after the new columns/tables are committed.
+notify pgrst, 'reload schema';
