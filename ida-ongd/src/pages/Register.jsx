@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react'
 import AuthFormShell from '../components/AuthFormShell'
 import FormField from '../components/FormField'
 import { friendlyAuthError } from '../lib/authErrors'
-import { clearReferralCode, findInviterByCode, getSavedReferralCode } from '../lib/community'
+import { clearReferralCode, getSavedReferralCode } from '../lib/community'
 import { supabase } from '../lib/supabase'
 
 const initialValues = { firstName: '', lastName: '', phone: '', whatsapp: '', email: '', password: '', passwordConfirm: '', neighborhoodId: '' }
@@ -29,7 +29,6 @@ export default function Register() {
   const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(true)
   const [neighborhoodNotice, setNeighborhoodNotice] = useState('')
   const [referralCode, setReferralCode] = useState(getSavedReferralCode)
-  const [referralError, setReferralError] = useState('')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState({ type: '', message: '' })
 
@@ -76,34 +75,19 @@ export default function Register() {
     setLoading(true)
     setStatus({ type: '', message: '' })
     try {
-      let inviter = null
-      if (referralCode) {
-        try {
-          inviter = await findInviterByCode(referralCode)
-        } catch {
-          setReferralError('Impossible de vérifier ce lien auprès de Supabase. Réessayez ou créez votre compte sans invitation.')
-          return
-        }
-        if (!inviter) {
-          clearReferralCode()
-          setReferralCode('')
-          setReferralError("Ce lien d'invitation n'est plus valide ou n'existe pas.")
-          return
-        }
-      }
-
       const neighborhood = neighborhoods.find((item) => String(item.id) === values.neighborhoodId)
       const { data, error } = await supabase.auth.signUp({
         email: values.email.trim(),
         password: values.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/connexion`,
           data: {
             first_name: values.firstName.trim(),
             last_name: values.lastName.trim(),
             phone: values.phone.trim(),
             whatsapp: values.whatsapp.trim(),
             ...(neighborhood ? { neighborhood_id: neighborhood.id } : {}),
-            ...(inviter ? { referral_code: referralCode } : {}),
+            ...(referralCode ? { referral_code: referralCode.trim() } : {}),
           },
         },
       })
@@ -118,23 +102,16 @@ export default function Register() {
         ? 'Votre demande d’inscription a bien été envoyée. Vérifiez votre email pour confirmer votre compte. Votre rattachement communautaire sera enregistré par IDA.'
         : 'Votre compte a été créé. Votre rattachement communautaire est en cours de préparation.' })
       setValues(initialValues)
-    } catch {
-      setStatus({ type: 'error', message: friendlyAuthError({ message: 'network error' }) })
+    } catch (error) {
+      setStatus({ type: 'error', message: friendlyAuthError(error) })
     } finally {
       setLoading(false)
     }
   }
 
-  function continueWithoutReferral() {
-    clearReferralCode()
-    setReferralCode('')
-    setReferralError('')
-  }
-
   return <AuthFormShell eyebrow="Rejoindre la communauté" title="Devenir membre" intro="Créez votre compte et prenez part à la mobilisation communautaire d’IDA." footer={<>Vous avez déjà un compte ? <Link to="/connexion">Se connecter</Link></>}>
     {status.message && <div className={`form-notice notice-${status.type}`} role={status.type === 'error' ? 'alert' : 'status'}>{status.type === 'success' && <CheckCircle2 size={19} />}{status.message}</div>}
-    {referralCode && <div className="form-notice notice-info" role="status">Invitation communautaire détectée. Le code sera vérifié auprès de Supabase avant la création du compte.</div>}
-    {referralError && <div className="form-notice notice-error" role="alert"><span>{referralError}</span><button className="referral-clear-button" type="button" onClick={continueWithoutReferral}>Créer un compte sans invitation</button></div>}
+    {referralCode && <div className="form-notice notice-info" role="status">Invitation communautaire détectée. Le code sera validé de façon sécurisée par Supabase pendant la création du compte.</div>}
     <form className="auth-form" onSubmit={submit} noValidate>
       <div className="form-grid-two">
         <FormField label="Prénom" name="firstName" autoComplete="given-name" value={values.firstName} onChange={update} error={errors.firstName} />

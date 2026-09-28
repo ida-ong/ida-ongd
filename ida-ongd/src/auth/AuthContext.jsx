@@ -1,35 +1,34 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AuthContext } from './authContextValue'
 import { supabase } from '../lib/supabase'
 import { normalizeRole } from '../lib/roles'
 
 export function AuthProvider({ children }) {
   const [auth, setAuth] = useState({ session: null, user: null, profile: null, loading: true, profileError: null })
+  const profileRequestId = useRef(0)
 
   const readProfile = useCallback(async (session, active = () => true) => {
+    const requestId = ++profileRequestId.current
     if (!session?.user) {
-      if (active()) setAuth({ session: null, user: null, profile: null, loading: false, profileError: null })
+      if (active() && requestId === profileRequestId.current) setAuth({ session: null, user: null, profile: null, loading: false, profileError: null })
       return
     }
     if (active()) setAuth((current) => ({ ...current, session, user: session.user, loading: true, profileError: null }))
     try {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-      if (active()) setAuth({ session, user: session.user, profile: data ?? null, loading: false, profileError: error })
+      if (active() && requestId === profileRequestId.current) setAuth({ session, user: session.user, profile: data ?? null, loading: false, profileError: error })
     } catch (error) {
-      if (active()) setAuth({ session, user: session.user, profile: null, loading: false, profileError: error })
+      if (active() && requestId === profileRequestId.current) setAuth({ session, user: session.user, profile: null, loading: false, profileError: error })
     }
   }, [])
 
   useEffect(() => {
     let mounted = true
-    const updateSession = (session) => { void readProfile(session, () => mounted) }
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => updateSession(session))
-    void supabase.auth.getSession()
-      .then(({ data: { session } }) => updateSession(session))
-      .catch((error) => {
-        console.error('[IDA] Impossible de restaurer la session Supabase.', error)
-        if (mounted) setAuth({ session: null, user: null, profile: null, loading: false, profileError: error })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      queueMicrotask(() => {
+        if (mounted) void readProfile(session, () => mounted)
       })
+    })
     return () => { mounted = false; subscription.unsubscribe() }
   }, [readProfile])
 

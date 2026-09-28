@@ -22,7 +22,10 @@ export default function Referral() {
         saveReferralCode(affiliateCode)
         setState({ status: 'valid', inviter })
       } catch {
-        if (active) setState({ status: 'error', inviter: null })
+        if (active) {
+          saveReferralCode(affiliateCode)
+          setState({ status: 'unverified', inviter: null })
+        }
       }
     }
     void validateCode()
@@ -40,13 +43,13 @@ export default function Referral() {
         {state.status === 'loading' && <p className="form-notice notice-info" role="status">Vérification de votre invitation…</p>}
         {state.status === 'valid' && <p className="form-notice notice-success" role="status">Invitation partagée par <strong>{[state.inviter?.first_name, state.inviter?.last_name].filter(Boolean).join(' ') || 'un membre IDA'}</strong>.</p>}
         {state.status === 'invalid' && <div className="form-notice notice-error" role="alert">Ce lien d'invitation n'est plus valide ou n'existe pas.</div>}
-        {state.status === 'error' && <div className="form-notice notice-error" role="alert">La vérification de l’invitation est momentanément indisponible. Vous pouvez créer un compte sans invitation.</div>}
+        {state.status === 'unverified' && <div className="form-notice notice-info" role="status">La vérification immédiate est indisponible. Vous pouvez poursuivre l’inscription ; Supabase vérifiera le code lors de la création du compte.</div>}
 
         <div className="referral-how"><h2>Rejoindre la communauté</h2><p><UsersRound size={18} /> Créez votre compte, participez aux initiatives locales et mobilisez votre entourage.</p><p><ShieldCheck size={18} /> Le réseau permet de suivre la mobilisation. Toute nomination de leader est validée par l’administration.</p></div>
         <div className="referral-invite-actions">
           {state.status === 'loading'
             ? <button className="button button-primary" type="button" disabled>Vérification de l’invitation…</button>
-            : <Button to="/inscription">{state.status === 'valid' ? 'Créer mon compte' : 'Créer un compte sans invitation'} <ArrowRight size={17} /></Button>}
+            : <Button to="/inscription">{state.status === 'valid' ? 'Créer mon compte' : state.status === 'unverified' ? 'Continuer mon inscription' : 'Créer un compte sans invitation'} <ArrowRight size={17} /></Button>}
           <Link className="button button-outline" to="/connexion" onClick={clearReferralCode}>J’ai déjà un compte</Link>
         </div>
         <p className="referral-privacy-note">Aucune promesse financière : l’invitation concerne uniquement la mobilisation communautaire.</p>

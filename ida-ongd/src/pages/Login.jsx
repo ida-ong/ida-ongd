@@ -23,11 +23,16 @@ export default function Login() {
     if (Object.keys(nextErrors).length || loading) return
     setLoading(true)
     setMessage('')
-    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    setLoading(false)
-    if (error) { setMessage(friendlyAuthError(error)); return }
-    if (!data.session) { setMessage('La session n’a pas pu être établie. Veuillez réessayer.'); return }
-    navigate(location.state?.from?.pathname || '/dashboard', { replace: true })
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      if (error) { setMessage(friendlyAuthError(error)); return }
+      if (!data.session) { setMessage('La session n’a pas pu être établie. Veuillez réessayer.'); return }
+      navigate(location.state?.from?.pathname || '/dashboard', { replace: true })
+    } catch (error) {
+      setMessage(friendlyAuthError(error))
+    } finally {
+      setLoading(false)
+    }
   }
 
   return <AuthFormShell eyebrow="Espace membre" title="Connexion" intro="Connectez-vous pour accéder à votre espace membre." footer={<>Pas encore membre ? <Link to="/inscription">Créer un compte</Link></>}>
