@@ -52,6 +52,32 @@ const configs = {
 const statusLabels = { draft: 'Brouillon', published: 'Publié', archived: 'Archivé' }
 const priorityLabels = { normal: 'Normale', important: 'Importante', urgent: 'Urgente' }
 
+function contentErrorMessage(error, type) {
+  console.error('[IDA] Échec de gestion de contenu Supabase.', {
+    type,
+    code: error?.code ?? null,
+    status: error?.status ?? null,
+    message: error?.message ?? String(error),
+  })
+
+  const message = String(error?.message ?? '').toLowerCase()
+  const missingColumn = message.match(/could not find the '([^']+)' column of '([^']+)' in the schema cache/i)
+  if (missingColumn) {
+    return `Le schéma Supabase de « ${missingColumn[2]} » ne contient pas encore la colonne « ${missingColumn[1]} ». Appliquez la migration Phase 7 dans Supabase, puis actualisez le schéma PostgREST.`
+  }
+
+  const missingTable = message.match(/could not find the table '([^']+)' in the schema cache/i)
+  if (missingTable) {
+    return `La table « ${missingTable[1]} » n’existe pas encore dans Supabase. Appliquez la migration Phase 7 puis actualisez le schéma PostgREST.`
+  }
+
+  if (message.includes('failed to fetch') || message.includes('network')) {
+    return 'Supabase est momentanément inaccessible. Vérifiez la connexion réseau puis réessayez.'
+  }
+
+  return error?.message || 'Le contenu n’a pas pu être enregistré. Vérifiez la configuration Supabase et vos permissions.'
+}
+
 function makeEmpty(config) {
   return Object.fromEntries(config.fields.map((field) => [field.name, field.defaultValue ?? (field.name === 'status' ? 'draft' : field.name === 'priority' ? 'normal' : '')]))
 }
@@ -77,7 +103,7 @@ export default function AdminContentManager({ type }) {
     let active = true
     getAdminContent(type)
       .then((records) => { if (active) setItems(records) })
-      .catch((error) => { if (active) setMessage({ type: 'error', text: error.message || 'Les contenus sont indisponibles.' }) })
+      .catch((error) => { if (active) setMessage({ type: 'error', text: contentErrorMessage(error, type) }) })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [type])
@@ -124,7 +150,7 @@ export default function AdminContentManager({ type }) {
       resetForm()
       setMessage({ type: 'success', text: editing ? 'Le contenu a été mis à jour.' : 'Le contenu a été enregistré.' })
     } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'Enregistrement impossible. Vérifiez la migration Phase 7 et vos permissions.' })
+      setMessage({ type: 'error', text: contentErrorMessage(error, type) })
     } finally {
       setSaving(false)
     }
@@ -137,7 +163,7 @@ export default function AdminContentManager({ type }) {
       await loadItems()
       setMessage({ type: 'success', text: `Statut changé : ${statusLabels[status]}.` })
     } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'Le statut n’a pas pu être modifié.' })
+      setMessage({ type: 'error', text: contentErrorMessage(error, type) })
     }
   }
 
@@ -149,7 +175,7 @@ export default function AdminContentManager({ type }) {
       if (values.id === item.id) resetForm()
       setMessage({ type: 'success', text: 'Le contenu a été supprimé.' })
     } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'La suppression a échoué.' })
+      setMessage({ type: 'error', text: contentErrorMessage(error, type) })
     }
   }
 

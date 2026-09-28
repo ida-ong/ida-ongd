@@ -6,6 +6,12 @@ const tables = {
   information: 'important_information',
 }
 
+const writableColumns = {
+  news: ['title', 'slug', 'summary', 'content', 'image_url', 'status'],
+  actions: ['title', 'description', 'objective', 'location', 'date_action', 'image_url', 'status'],
+  information: ['title', 'content', 'priority', 'status'],
+}
+
 function tableFor(type) {
   const table = tables[type]
   if (!table) throw new Error('Type de contenu IDA inconnu.')
@@ -54,10 +60,10 @@ export async function getAdminContent(type) {
 export async function saveAdminContent(type, values, userId) {
   const query = tableFor(type)
   const { id, ...fields } = values
-  const normalizedFields = Object.fromEntries(Object.entries(fields).map(([key, value]) => [
-    key,
-    ['image_url', 'location', 'date_action'].includes(key) && value === '' ? null : value,
-  ]))
+  const allowedColumns = writableColumns[type]
+  const normalizedFields = Object.fromEntries(allowedColumns
+    .filter((key) => Object.hasOwn(fields, key))
+    .map((key) => [key, ['image_url', 'location', 'date_action'].includes(key) && fields[key] === '' ? null : fields[key]]))
   const payload = type === 'news'
     ? { ...normalizedFields, excerpt: normalizedFields.summary }
     : normalizedFields
