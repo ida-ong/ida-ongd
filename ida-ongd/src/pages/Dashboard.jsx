@@ -58,6 +58,7 @@ export default function Dashboard() {
   return <main className="dashboard-page page-section"><div className="container">
     <div className="dashboard-heading"><div><span className="eyebrow">Espace membre</span><h1>Bienvenue, {profile?.first_name || 'membre'}</h1><p>Retrouvez ici votre profil et votre engagement communautaire.</p></div><span className="role-pill"><ShieldCheck size={16} /> {role}</span></div>
     {profileError && <div className="form-notice notice-error" role="status">Votre session est active, mais les informations du profil ne sont pas disponibles pour le moment.</div>}
+    {user && !profile && !profileError && <div className="form-notice notice-error" role="status">Connexion réussie, mais aucun profil IDA n’est associé à ce compte. Contactez l’administration pour vérifier votre profil.</div>}
     <div className="dashboard-grid">
       <section className="dashboard-card profile-card">
         <div className="profile-heading">{profile?.avatar_url ? <img className="profile-avatar" src={profile.avatar_url} alt="" /> : <div className="profile-avatar profile-avatar-placeholder" aria-hidden="true">{fullName.slice(0, 1).toUpperCase()}</div>}<div><span className="eyebrow">Mon profil</span><h2>{fullName}</h2><span className="role-pill role-pill-soft">{role}</span></div></div>

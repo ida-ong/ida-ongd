@@ -40,6 +40,14 @@ export function AuthProvider({ children }) {
       }
       if (active() && requestId === profileRequestId.current) setAuth({ session, user: session.user, profile: data ?? null, loading: false, profileError: error })
     } catch (error) {
+      console.error('[IDA] Exception pendant la lecture du profil Supabase', {
+        stage: 'profile',
+        userId: session.user.id,
+        profileFound: false,
+        message: error?.message ?? String(error),
+        code: error?.code ?? null,
+        status: error?.status ?? null,
+      })
       if (active() && requestId === profileRequestId.current) setAuth({ session, user: session.user, profile: null, loading: false, profileError: error })
     }
   }, [])
