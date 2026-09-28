@@ -519,12 +519,22 @@ p { line-height: 1.75; }
 :root[data-theme='dark'] .footer-whatsapp { color: #d2e0e9; }
 
 @media (max-width: 1020px) {
+  .menu-toggle { display: inline-flex; }
+  .nav-panel { position: absolute; top: 100%; right: 0; left: 0; display: none; align-items: stretch; flex-direction: column; gap: 17px; max-height: calc(100dvh - 68px); overflow-y: auto; overscroll-behavior: contain; padding: 18px 20px 22px; border-bottom: 1px solid var(--line); background: var(--white); box-shadow: 0 14px 20px rgba(17,55,86,.08); }
+  .nav-panel-open { display: flex; }
+  .nav-links, .nav-actions { align-items: stretch; flex-direction: column; gap: 0; }
+  .nav-links a, .nav-login { padding: 12px 5px; border-bottom: 1px solid var(--line); font-size: .91rem; }
+  .nav-actions { gap: 4px; }
+  .nav-join { margin-top: 11px; }
+  .nav-logout { text-align: left; }
+  .theme-toggle { align-self: flex-start; margin-top: 10px; }
   .nav-links { gap: 13px; }
   .nav-links a, .nav-login { font-size: .77rem; }
   .nav-actions { gap: 12px; }
   .nav-join { padding-inline: 11px; }
   .objective-grid { grid-template-columns: repeat(2, 1fr); }
   .domain-grid, .donation-page-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .hero-section, .hero-content { min-height: 550px; }
   .hero-visual { width: 48%; }
   .hero-copy { max-width: 485px; }
@@ -573,6 +583,11 @@ p { line-height: 1.75; }
   .footer-main { grid-template-columns: 1fr; gap: 22px; }
   .footer-links { gap: 11px 18px; }
   .dashboard-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .stats-card { min-height: 94px; padding: 14px 12px; }
+  .stats-card p { font-size: .65rem; }
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-panel.full-width { grid-column: auto; }
   .profile-card { grid-row: auto; }
   .referral-card { grid-column: auto; }
   .dashboard-heading { align-items: flex-start; flex-direction: column; }
@@ -582,6 +597,7 @@ p { line-height: 1.75; }
 
 @media (max-width: 520px) {
   .container { width: calc(100% - 32px); }
+  .button { min-height: 46px; }
   .hero-copy { padding-top: 35px; }
   .hero-kicker { font-size: .64rem; }
   .hero-copy h1 { font-size: clamp(2.45rem, 12vw, 3.55rem); }
@@ -642,6 +658,8 @@ p { line-height: 1.75; }
   .referral-actions .button { width: 100%; }
   .dashboard-help { align-items: flex-start; flex-wrap: wrap; }
   .dashboard-help a { margin-left: 32px; }
+  .whatsapp-float { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: 52px; min-height: 52px; padding: 0; }
+  .whatsapp-float span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
