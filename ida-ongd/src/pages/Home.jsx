@@ -3,6 +3,7 @@ import {
   Leaf, MapPin, Megaphone, ShieldCheck, Sparkles, Users, UsersRound,
 } from 'lucide-react'
 import Button from '../components/Button'
+import ImportantInformationPreview from '../components/ImportantInformationPreview'
 import SectionTitle from '../components/SectionTitle'
 import heroImage from '../assets/hero.png'
 
@@ -52,6 +53,8 @@ export default function Home() {
     </section>
 
     <section className="intro-strip"><div className="container intro-strip-inner"><span className="intro-mark">IDA</span><p>Protéger <i /> Éduquer <i /> Autonomiser <i /> Mobiliser</p><span className="intro-location">Lubumbashi · RDC</span></div></section>
+
+    <ImportantInformationPreview />
 
     <section className="page-section about-section" id="qui-sommes-nous"><div className="container about-grid"><div className="about-mark"><div className="about-logo-frame"><img src={heroImage} alt="Communauté soutenue par IDA" /></div><div className="founded-badge"><span>Depuis</span><strong>26.09.2026</strong><small>Création d’IDA</small></div></div><div className="about-copy"><span className="eyebrow">Notre identité</span><h2>Qui sommes-nous ?</h2><p className="lead">IDA — Initiative Dignité Autonomisation est une organisation non gouvernementale de développement à vocation humanitaire.</p><p>Nous œuvrons pour contribuer à l’amélioration des conditions de vie des enfants, des jeunes et des femmes en situation de vulnérabilité. À Lubumbashi, nos actions s’articulent autour de la protection, de la sensibilisation, de l’éducation, de l’autonomisation et de la mobilisation communautaire.</p><p>Nous encourageons la participation active des communautés pour identifier les défis, développer des réponses adaptées et contribuer durablement au développement local.</p><div className="about-meta"><span><MapPin size={16} /> Lubumbashi, RDC</span><span><CalendarMark /> Créée le 26 septembre 2026</span></div><Button to="/a-propos" variant="text">En savoir plus sur IDA <ArrowRight size={16} /></Button></div></div></section>
 

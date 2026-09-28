@@ -5,6 +5,7 @@ import SiteLayout from './layouts/SiteLayout'
 import About from './pages/About'
 import Activities from './pages/Activities'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminContentManager from './pages/AdminContentManager'
 import AdminEligible from './pages/AdminEligible'
 import AdminMembers from './pages/AdminMembers'
 import AdminMissions from './pages/AdminMissions'
@@ -17,6 +18,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import FounderAdministrators from './pages/FounderAdministrators'
 import FounderDashboard from './pages/FounderDashboard'
 import Home from './pages/Home'
+import Information from './pages/Information'
 import LeaderDashboard from './pages/LeaderDashboard'
 import LeaderActivities from './pages/LeaderActivities'
 import LeaderMissionDetail from './pages/LeaderMissionDetail'
@@ -26,6 +28,8 @@ import LeaderReportNew from './pages/LeaderReportNew'
 import LeaderReports from './pages/LeaderReports'
 import Login from './pages/Login'
 import News from './pages/News'
+import NewsDetail from './pages/NewsDetail'
+import PublicActionDetail from './pages/PublicActionDetail'
 import Network from './pages/Network'
 import Register from './pages/Register'
 import Referral from './pages/Referral'
@@ -39,7 +43,10 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/a-propos" element={<About />} />
             <Route path="/actions" element={<Activities />} />
+            <Route path="/actions/:id" element={<PublicActionDetail />} />
             <Route path="/actualites" element={<News />} />
+            <Route path="/actualites/:slug" element={<NewsDetail />} />
+            <Route path="/informations" element={<Information />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/dons" element={<Donations />} />
             <Route path="/inscription" element={<Register />} />
@@ -53,6 +60,9 @@ function App() {
             <Route path="/admin/membres" element={<ProtectedRoute roles={['admin', 'founder']}><AdminMembers /></ProtectedRoute>} />
             <Route path="/admin/eligibles" element={<ProtectedRoute roles={['admin', 'founder']}><AdminEligible /></ProtectedRoute>} />
             <Route path="/admin/missions" element={<ProtectedRoute roles={['admin', 'founder']}><AdminMissions /></ProtectedRoute>} />
+            <Route path="/admin/actualites" element={<ProtectedRoute roles={['admin', 'founder']}><AdminContentManager type="news" /></ProtectedRoute>} />
+            <Route path="/admin/actions" element={<ProtectedRoute roles={['admin', 'founder']}><AdminContentManager type="actions" /></ProtectedRoute>} />
+            <Route path="/admin/informations" element={<ProtectedRoute roles={['admin', 'founder']}><AdminContentManager type="information" /></ProtectedRoute>} />
             <Route path="/admin/rapports" element={<ProtectedRoute roles={['admin', 'founder']}><AdminReports /></ProtectedRoute>} />
             <Route path="/admin/rapports/:id" element={<ProtectedRoute roles={['admin', 'founder']}><AdminReportDetail /></ProtectedRoute>} />
             <Route path="/founder" element={<ProtectedRoute roles={['founder']}><FounderDashboard /></ProtectedRoute>} />

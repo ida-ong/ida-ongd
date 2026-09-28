@@ -7,13 +7,14 @@ import { getDefaultRouteForRole } from '../lib/roles'
 import ThemeToggle from './ThemeToggle'
 import logo from '../assets/logo.png'
 
-const links = [['Accueil', '/'], ['À propos', '/a-propos'], ['Nos actions', '/actions'], ['Actualités', '/actualites'], ['Contact', '/contact']]
+const links = [['Accueil', '/'], ['À propos', '/a-propos'], ['Nos actions', '/actions'], ['Actualités', '/actualites'], ['Informations', '/informations'], ['Dons', '/dons'], ['Contact', '/contact']]
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const { user, role } = useAuth()
   const navigate = useNavigate()
   const userHome = user ? getDefaultRouteForRole(role) : '/connexion'
+  const isAdminOrFounder = ['admin', 'founder'].includes(role)
   async function signOut() {
     await supabase.auth.signOut()
     setOpen(false)
@@ -28,7 +29,7 @@ export default function Navbar() {
       <button className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}>{open ? <X size={23} /> : <Menu size={23} />}</button>
       <div className={`nav-panel${open ? ' nav-panel-open' : ''}`}>
         <div className="nav-links">{links.map(([label, to]) => <NavLink key={to} to={to} end={to === '/'} onClick={() => setOpen(false)}>{label}</NavLink>)}</div>
-        <div className="nav-actions">{user ? <><Link className="nav-login" to={userHome} onClick={() => setOpen(false)}>Mon espace</Link><button className="nav-login nav-logout" type="button" onClick={signOut}>Déconnexion</button></> : <Link className="nav-login" to="/connexion" onClick={() => setOpen(false)}>Connexion</Link>}
+        <div className="nav-actions">{user ? <><Link className="nav-login" to={userHome} onClick={() => setOpen(false)}>Mon espace</Link><Link className="nav-login" to="/dashboard/reseau" onClick={() => setOpen(false)}>Mon réseau</Link>{role === 'leader' && <Link className="nav-login" to="/leader/rapports" onClick={() => setOpen(false)}>Mes rapports</Link>}{isAdminOrFounder && <details className="nav-admin-links"><summary>Administration</summary><div><Link to="/admin" onClick={() => setOpen(false)}>Tableau de bord</Link><Link to="/admin/membres" onClick={() => setOpen(false)}>Membres</Link><Link to="/admin/eligibles" onClick={() => setOpen(false)}>Leaders éligibles</Link><Link to="/admin/missions" onClick={() => setOpen(false)}>Missions</Link><Link to="/admin/rapports" onClick={() => setOpen(false)}>Rapports</Link><Link to="/admin/actualites" onClick={() => setOpen(false)}>Actualités</Link><Link to="/admin/actions" onClick={() => setOpen(false)}>Actions</Link><Link to="/admin/informations" onClick={() => setOpen(false)}>Informations</Link></div></details>}<button className="nav-login nav-logout" type="button" onClick={signOut}>Déconnexion</button></> : <Link className="nav-login" to="/connexion" onClick={() => setOpen(false)}>Connexion</Link>}
           <ThemeToggle />
           <Link className="button button-primary nav-join" to="/inscription" onClick={() => setOpen(false)}><HeartHandshake size={17} /> Devenir membre</Link>
         </div>
