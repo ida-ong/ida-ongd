@@ -54,9 +54,13 @@ export async function getAdminContent(type) {
 export async function saveAdminContent(type, values, userId) {
   const query = tableFor(type)
   const { id, ...fields } = values
+  const normalizedFields = Object.fromEntries(Object.entries(fields).map(([key, value]) => [
+    key,
+    ['image_url', 'location', 'date_action'].includes(key) && value === '' ? null : value,
+  ]))
   const payload = type === 'news'
-    ? { ...fields, excerpt: fields.summary, author_id: undefined }
-    : fields
+    ? { ...normalizedFields, excerpt: normalizedFields.summary }
+    : normalizedFields
   if (type === 'news') delete payload.summary
   if (!id && type === 'news') payload.author_id = userId
   if (!id && type !== 'news') payload.created_by = userId

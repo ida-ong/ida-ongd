@@ -18,7 +18,7 @@ Les colonnes existantes utilisées par la migration sont `profiles.id`, `first_n
 
 ## Phase 7 — actualités, actions, informations et dons
 
-Avant d’ajouter les contenus, le schéma Supabase existant a été interrogé en lecture seule. `activities`, `missions` et `reports` existent déjà : les activités demeurent les comptes rendus opérationnels des leaders. Les actualités (`news_articles`) et les actions éditoriales publiques (`public_actions`) sont distinctes et n’étaient pas présentes. La table `important_information` existait déjà; la migration la conserve et lui ajoute le statut éditorial, en synchronisant `is_active` pour compatibilité.
+Avant d’ajouter les contenus, le schéma Supabase existant a été interrogé en lecture seule. `activities`, `missions`, `reports`, `news`, `important_information` et `donations` existent déjà. Les actualités réutilisent `news` (`excerpt` pour le résumé, `author_id` pour l’auteur) et la migration ajoute uniquement l’image si elle manque. Les activités Phase 5 restent les comptes opérationnels des leaders; les actions éditoriales publiques utilisent `public_actions`, seule table de contenu manquante. `important_information` est adaptée en place et garde sa colonne `is_active` synchronisée avec le statut.
 
 ### Migration Phase 7
 
