@@ -273,3 +273,58 @@ drop policy if exists "important_information_delete_admin" on public.important_i
 create policy "important_information_delete_admin" on public.important_information for delete to authenticated using (
   exists (select 1 from public.profiles p where p.id = auth.uid() and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur'))
 );
+
+-- Clamp any legacy permissive policies already attached to the pre-existing
+-- important_information table without dropping or disabling those policies.
+drop policy if exists "important_information_phase7_restrict_select" on public.important_information;
+create policy "important_information_phase7_restrict_select"
+on public.important_information as restrictive for select to anon, authenticated
+using (
+  status = 'published'
+  or exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid()
+      and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')
+  )
+);
+
+drop policy if exists "important_information_phase7_restrict_insert" on public.important_information;
+create policy "important_information_phase7_restrict_insert"
+on public.important_information as restrictive for insert to authenticated
+with check (
+  created_by = auth.uid()
+  and exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid()
+      and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')
+  )
+);
+
+drop policy if exists "important_information_phase7_restrict_update" on public.important_information;
+create policy "important_information_phase7_restrict_update"
+on public.important_information as restrictive for update to authenticated
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid()
+      and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid()
+      and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')
+  )
+);
+
+drop policy if exists "important_information_phase7_restrict_delete" on public.important_information;
+create policy "important_information_phase7_restrict_delete"
+on public.important_information as restrictive for delete to authenticated
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid()
+      and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')
+  )
+);

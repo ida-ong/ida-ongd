@@ -16,6 +16,18 @@ Après application, vérifier avec deux comptes de test distincts qu’une invit
 
 Les colonnes existantes utilisées par la migration sont `profiles.id`, `first_name`, `last_name`, `affiliate_code`, `referred_by`, `neighborhood_id`, `member_number`, `role`, `created_at`, `is_active` et `neighborhoods.id/name`. Elles ont été vérifiées via l’API PostgREST configurée; aucune donnée de profil n’a été lue.
 
+## Phase 7 — actualités, actions, informations et dons
+
+Avant d’ajouter les contenus, le schéma Supabase existant a été interrogé en lecture seule. `activities`, `missions` et `reports` existent déjà : les activités demeurent les comptes rendus opérationnels des leaders. Les actualités (`news_articles`) et les actions éditoriales publiques (`public_actions`) sont distinctes et n’étaient pas présentes. La table `important_information` existait déjà; la migration la conserve et lui ajoute le statut éditorial, en synchronisant `is_active` pour compatibilité.
+
+### Migration Phase 7
+
+Appliquer `supabase/migrations/20260928150000_phase7_public_content.sql` dans **Supabase Dashboard → SQL Editor** après avoir vérifié le projet lié. Cette migration ajoute les tables manquantes, adapte `important_information`, maintient RLS, donne accès public à la lecture publiée et réserve la gestion à `admin`/`administrator` et `founder`/`fondateur`. Des policies restrictives encadrent également la table d’informations préexistante sans supprimer ses policies historiques.
+
+Le projet ne possède pas de bucket Supabase Storage configuré pour les médias éditoriaux. En Phase 7, l’administration peut renseigner une URL d’image; aucun téléversement Storage n’est simulé. La page Dons prépare un message WhatsApp; aucun paiement, transfert ou enregistrement de promesse n’est réalisé. Une future intégration de paiement devra être serveur et utiliser un fournisseur configuré séparément.
+
+Après application, vérifier la lecture anonyme des contenus publiés, la visibilité des brouillons uniquement pour les administrateurs/fondateurs, ainsi que les opérations de publication, archivage et suppression avec ces rôles. Les pages afficheront une erreur d’indisponibilité tant que cette migration n’aura pas été appliquée.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

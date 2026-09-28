@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, BookOpen, HandHeart, HeartPulse, ShieldCheck, Users, UsersRound } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import SectionTitle from '../components/SectionTitle'
 import { WHATSAPP_NUMBER } from '../lib/contact'
 
@@ -48,7 +49,7 @@ export default function Donations() {
       <div className="donation-page-grid">{areas.map(([name, Icon]) => <article className="domain-card donation-area-card" key={name}><span><Icon size={22} /></span><h3>{name}</h3></article>)}</div>
 
       <section className="donation-request-layout">
-        <div className="donation-request-copy"><span className="eyebrow">Parlons de votre contribution</span><h2>Choisir un objectif de soutien</h2><p>Indiquez votre objectif et, si vous le souhaitez, un montant indicatif et vos coordonnées. Le bouton prépare un message que vous pourrez vérifier et envoyer via WhatsApp.</p><p className="donation-disclaimer">Aucun paiement en ligne n’est activé. Aucune contribution n’est prélevée ni enregistrée par ce formulaire. Le montant et la devise seront confirmés avec l’équipe IDA.</p><a className="button button-outline" href="/contact">Contacter IDA <ArrowRight size={16} /></a></div>
+        <div className="donation-request-copy"><span className="eyebrow">Parlons de votre contribution</span><h2>Choisir un objectif de soutien</h2><p>Indiquez votre objectif et, si vous le souhaitez, un montant indicatif et vos coordonnées. Le bouton prépare un message que vous pourrez vérifier et envoyer via WhatsApp.</p><p className="donation-disclaimer">Aucun paiement en ligne n’est activé. Aucune contribution n’est prélevée ni enregistrée par ce formulaire. Le montant et la devise seront confirmés avec l’équipe IDA.</p><Link className="button button-outline" to="/contact">Contacter IDA <ArrowRight size={16} /></Link></div>
         <form className="donation-form" onSubmit={contactAboutContribution}>
           <label className="form-field"><span>Objectif du don</span><select name="objective" required value={values.objective} onChange={update}><option value="">Sélectionner un domaine</option>{areas.map(([name]) => <option key={name} value={name}>{name}</option>)}</select></label>
           <label className="form-field"><span>Montant indicatif (facultatif)</span><input name="amount" type="number" min="1" step="any" inputMode="decimal" placeholder="À discuter avec IDA" value={values.amount} onChange={update} /></label>
