@@ -12,15 +12,24 @@ export function AuthProvider({ children }) {
       return
     }
     if (active()) setAuth((current) => ({ ...current, session, user: session.user, loading: true, profileError: null }))
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-    if (active()) setAuth({ session, user: session.user, profile: data ?? null, loading: false, profileError: error })
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+      if (active()) setAuth({ session, user: session.user, profile: data ?? null, loading: false, profileError: error })
+    } catch (error) {
+      if (active()) setAuth({ session, user: session.user, profile: null, loading: false, profileError: error })
+    }
   }, [])
 
   useEffect(() => {
     let mounted = true
     const updateSession = (session) => { void readProfile(session, () => mounted) }
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => updateSession(session))
-    void supabase.auth.getSession().then(({ data: { session } }) => updateSession(session))
+    void supabase.auth.getSession()
+      .then(({ data: { session } }) => updateSession(session))
+      .catch((error) => {
+        console.error('[IDA] Impossible de restaurer la session Supabase.', error)
+        if (mounted) setAuth({ session: null, user: null, profile: null, loading: false, profileError: error })
+      })
     return () => { mounted = false; subscription.unsubscribe() }
   }, [readProfile])
 
