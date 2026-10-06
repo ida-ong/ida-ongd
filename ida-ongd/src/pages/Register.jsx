@@ -45,7 +45,7 @@ export default function Register() {
           setNeighborhoodNotice('La liste des quartiers est indisponible pour le moment. Vous pouvez créer votre compte sans la renseigner ; votre quartier pourra être ajouté plus tard.')
         } else if (!data?.length) {
           setNeighborhoods([])
-          setNeighborhoodNotice('Aucun quartier actif n’est disponible pour le moment. Vous pouvez poursuivre votre inscription sans sélectionner de quartier.')
+          setNeighborhoodNotice('Aucun quartier actif n’est configuré dans la base IDA. Vous pouvez terminer l’inscription sans quartier ; l’administration pourra compléter ce renseignement après validation de la liste officielle. La localisation automatique n’est pas activée pour le moment.')
         } else {
           setNeighborhoods(data)
           setNeighborhoodNotice('')
