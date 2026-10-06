@@ -3,7 +3,7 @@ import { Archive, Edit3, FilePlus2, Send, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { formatJoinDate } from '../lib/date'
-import { createSlug, deleteAdminContent, getAdminContent, saveAdminContent, supportsInformationArchive, supportsNewsCategories } from '../lib/content'
+import { createSlug, deleteAdminContent, getAdminContent, saveAdminContent, supportsInformationArchive, supportsNewsCategories, supportsNewsImages } from '../lib/content'
 
 const configs = {
   news: {
@@ -94,6 +94,22 @@ function contentErrorMessage(error, type) {
     return `La table « ${missingTable[1]} » n’existe pas encore dans Supabase. Appliquez la migration Phase 7 puis actualisez le schéma PostgREST.`
   }
 
+  if (error?.code === '42703' || error?.code === 'PGRST204') {
+    const column = message.match(/column\s+(?:public\.)?([a-z_]+)\.([a-z_]+)\s+does not exist/i)?.[2]
+      ?? message.match(/(?:column\s+)?['"]([a-z_]+)['"]\s+(?:column|in the schema cache)/i)?.[1]
+    return column
+      ? `Supabase ne reconnaît pas la colonne « ${column} » pour ce contenu. Appliquez la migration Phase 7 correspondante et rechargez le cache PostgREST.`
+      : 'Le schéma de la base ne correspond pas encore à cette publication. Vérifiez les colonnes et policies Supabase, puis rechargez le cache PostgREST.'
+  }
+
+  if (error?.code === '42501' || message.includes('row-level security') || message.includes('permission denied')) {
+    return 'Supabase a refusé l’opération par sécurité (RLS). Vérifiez que votre profil possède le rôle administrateur/fondateur et que la policy INSERT/UPDATE correspondante est appliquée.'
+  }
+
+  if (error?.code === '23505') {
+    return 'Une publication utilise déjà cette adresse courte (slug). Modifiez le slug puis réessayez.'
+  }
+
   if (message.includes('failed to fetch') || message.includes('network')) {
     return 'Supabase est momentanément inaccessible. Vérifiez la connexion réseau puis réessayez.'
   }
@@ -115,6 +131,7 @@ export default function AdminContentManager({ type }) {
   const [saving, setSaving] = useState(false)
   const [canArchive, setCanArchive] = useState(type !== 'information')
   const [canCategorizeNews, setCanCategorizeNews] = useState(type !== 'news')
+  const [canUseNewsImages, setCanUseNewsImages] = useState(type !== 'news')
   const [message, setMessage] = useState({ type: '', text: '' })
 
   const backPath = '/admin'
@@ -124,6 +141,7 @@ export default function AdminContentManager({ type }) {
     setItems(records)
     if (type === 'information') setCanArchive(supportsInformationArchive())
     if (type === 'news') setCanCategorizeNews(supportsNewsCategories())
+    if (type === 'news') setCanUseNewsImages(supportsNewsImages())
   }
 
   useEffect(() => {
@@ -134,6 +152,7 @@ export default function AdminContentManager({ type }) {
         setItems(records)
         if (type === 'information') setCanArchive(supportsInformationArchive())
         if (type === 'news') setCanCategorizeNews(supportsNewsCategories())
+        if (type === 'news') setCanUseNewsImages(supportsNewsImages())
       })
       .catch((error) => { if (active) setMessage({ type: 'error', text: contentErrorMessage(error, type) }) })
       .finally(() => { if (active) setLoading(false) })
@@ -218,10 +237,11 @@ export default function AdminContentManager({ type }) {
     {message.text && <div className={`form-notice notice-${message.type === 'error' ? 'error' : message.type === 'success' ? 'success' : 'info'}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text}</div>}
     {type === 'information' && !canArchive && <p className="form-notice notice-info" role="status">Le schéma Supabase actuel utilise « is_active » sans colonne « status ». La publication et la dépublication restent compatibles ; l’archivage distinct sera disponible après application de la migration Phase 7.</p>}
     {type === 'news' && !canCategorizeNews && <p className="form-notice notice-info" role="status">La colonne de domaine éditorial n’existe pas encore dans Supabase. Les actualités restent modifiables ; appliquez la migration Phase 7 pour activer leur catégorisation.</p>}
+    {type === 'news' && !canUseNewsImages && <p className="form-notice notice-info" role="status">La colonne d’image n’existe pas encore dans Supabase. Les actualités restent modifiables sans image ; appliquez la migration Phase 7 pour activer ce champ.</p>}
     <div className="admin-layout content-manager-layout">
       <section className="admin-panel admin-content-form" id="content-form"><div className="panel-header"><div><span className="eyebrow">{editing ? 'Modification' : 'Nouvelle publication'}</span><h2>{editing ? 'Modifier le contenu' : 'Créer un contenu'}</h2></div><FilePlus2 size={22} /></div>
         <form className="phase5-form" onSubmit={submit}>
-          {config.fields.filter((field) => !(type === 'news' && field.name === 'category' && !canCategorizeNews)).map((field) => <label className="content-field" key={field.name}>{field.label}
+          {config.fields.filter((field) => !(type === 'news' && field.name === 'category' && !canCategorizeNews) && !(type === 'news' && field.name === 'image_url' && !canUseNewsImages)).map((field) => <label className="content-field" key={field.name}>{field.label}
             {field.type === 'textarea'
               ? <textarea required={field.required} rows={field.rows || 4} name={field.name} value={values[field.name] ?? ''} onChange={update} />
               : field.type === 'select'

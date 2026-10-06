@@ -13,7 +13,7 @@ const writableColumns = {
 }
 
 let informationStatusColumnAvailable = true
-let newsCategoryColumnAvailable = false
+const newsOptionalColumnsAvailable = { category: false, image_url: false }
 
 function isMissingStatusColumn(error) {
   const message = String(error?.message ?? '').toLowerCase()
@@ -25,7 +25,11 @@ export function supportsInformationArchive() {
 }
 
 export function supportsNewsCategories() {
-  return newsCategoryColumnAvailable
+  return newsOptionalColumnsAvailable.category
+}
+
+export function supportsNewsImages() {
+  return newsOptionalColumnsAvailable.image_url
 }
 
 function tableFor(type) {
@@ -78,17 +82,33 @@ export async function getPublicActionById(id) {
 
 export async function getAdminContent(type) {
   const makeQuery = (select) => tableFor(type).select(select).order('updated_at', { ascending: false })
-  let result = await makeQuery(type === 'information' ? '*, status' : type === 'news' ? '*, category' : '*')
-  if (type === 'information' && result.error && isMissingStatusColumn(result.error)) {
-    informationStatusColumnAvailable = false
+  let result
+  if (type === 'information') {
+    result = await makeQuery('*, status')
+    if (result.error && isMissingStatusColumn(result.error)) {
+      informationStatusColumnAvailable = false
+      result = await makeQuery('*')
+    } else if (!result.error) {
+      informationStatusColumnAvailable = true
+    }
+  } else if (type === 'news') {
+    const optionalColumns = ['category', 'image_url']
+    while (true) {
+      const extras = optionalColumns.join(', ')
+      result = await makeQuery(extras ? `*, ${extras}` : '*')
+      if (!result.error) break
+
+      const message = String(result.error.message ?? '').toLowerCase()
+      const missingColumn = optionalColumns.find((column) =>
+        message.includes(`news.${column}`) || message.includes(`'${column}' column`)
+      )
+      if (!missingColumn) throw result.error
+      optionalColumns.splice(optionalColumns.indexOf(missingColumn), 1)
+    }
+    newsOptionalColumnsAvailable.category = optionalColumns.includes('category')
+    newsOptionalColumnsAvailable.image_url = optionalColumns.includes('image_url')
+  } else {
     result = await makeQuery('*')
-  } else if (type === 'information' && !result.error) {
-    informationStatusColumnAvailable = true
-  } else if (type === 'news' && result.error && String(result.error.message ?? '').toLowerCase().includes('column news.category does not exist')) {
-    newsCategoryColumnAvailable = false
-    result = await makeQuery('*')
-  } else if (type === 'news' && !result.error) {
-    newsCategoryColumnAvailable = true
   }
   const { data, error } = result
   if (error) throw error
@@ -108,7 +128,10 @@ export async function saveAdminContent(type, values, userId) {
   const normalizedFields = Object.fromEntries(allowedColumns
     .filter((key) => Object.hasOwn(fields, key))
     .map((key) => [key, ['image_url', 'location', 'date_action', 'category'].includes(key) && fields[key] === '' ? null : fields[key]]))
-  if (type === 'news' && !newsCategoryColumnAvailable) delete normalizedFields.category
+  if (type === 'news') {
+    if (!newsOptionalColumnsAvailable.category) delete normalizedFields.category
+    if (!newsOptionalColumnsAvailable.image_url) delete normalizedFields.image_url
+  }
   const payload = type === 'news'
     ? { ...normalizedFields, excerpt: normalizedFields.summary }
     : type === 'information' && !informationStatusColumnAvailable

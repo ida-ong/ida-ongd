@@ -15,6 +15,7 @@ import AdminReports from './pages/AdminReports'
 import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
 import Donations from './pages/Donations'
+import DomainDetail from './pages/DomainDetail'
 import ForgotPassword from './pages/ForgotPassword'
 import FounderAdministrators from './pages/FounderAdministrators'
 import FounderDashboard from './pages/FounderDashboard'
@@ -45,6 +46,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/a-propos" element={<About />} />
             <Route path="/objectifs" element={<Objectives />} />
+            <Route path="/domaines/:slug" element={<DomainDetail />} />
             <Route path="/actions" element={<Activities />} />
             <Route path="/actions/:id" element={<PublicActionDetail />} />
             <Route path="/actualites" element={<News />} />

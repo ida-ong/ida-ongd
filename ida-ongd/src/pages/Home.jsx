@@ -1,8 +1,7 @@
 import {
-  ArrowDown, ArrowRight, BookOpen, BriefcaseBusiness, GraduationCap,
-  HandHeart, HeartHandshake, HeartPulse, Laptop, Leaf, MapPin, Megaphone,
-  ShieldCheck, Users,
+  ArrowDown, ArrowRight, HandHeart, HeartHandshake, MapPin, ShieldCheck,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import Button from '../components/Button'
 import ImportantInformationPreview from '../components/ImportantInformationPreview'
 import HomeContentPreview from '../components/HomeContentPreview'
@@ -10,16 +9,8 @@ import GirlsEngagementCallout from '../components/GirlsEngagementCallout'
 import SectionTitle from '../components/SectionTitle'
 import { useAuth } from '../auth/useAuth'
 import { getDefaultRouteForRole } from '../lib/roles'
-import { objectives } from '../lib/objectives'
+import { objectiveSlug, objectives } from '../lib/objectives'
 import heroImage from '../assets/hero.png'
-
-const domains = [
-  ['Protection de l’enfant', ShieldCheck], ['Jeunes filles', HeartPulse],
-  ['Éducation et soutien scolaire', BookOpen], ['Formation professionnelle', GraduationCap],
-  ['Formation et inclusion numériques', Laptop], ['Accompagnement social et psychosocial', Users],
-  ['Aide humanitaire', HandHeart], ['Prévention des violences', Megaphone],
-  ['Entrepreneuriat', BriefcaseBusiness], ['Développement communautaire', Leaf],
-]
 
 const networkSteps = [
   'Créer son compte membre.',
@@ -63,7 +54,7 @@ export default function Home() {
 
     <section className="page-section objectives-section" id="nos-objectifs"><div className="container"><SectionTitle eyebrow="Notre engagement" title="Nos objectifs">Protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables.</SectionTitle><div className="objective-grid">{objectives.map(([title, text, Icon], index) => <article className="objective-card" key={title}><span className="card-index">{String(index + 1).padStart(2, '0')}</span><span className="card-icon"><Icon size={21} strokeWidth={1.8} /></span><h3>{title}</h3><p>{text}</p></article>)}</div><div className="objectives-more"><Button to="/objectifs" variant="outline">Voir nos objectifs en détail <ArrowRight size={16} /></Button></div></div></section>
 
-    <section className="domains-section page-section"><div className="container"><SectionTitle eyebrow="Nos champs d’action" title="Nos domaines d’intervention">Une approche globale au service de la dignité humaine et du développement local.</SectionTitle><div className="domain-grid">{domains.map(([title, Icon]) => <article className="domain-card" key={title}><span><Icon size={22} strokeWidth={1.8} /></span><h3>{title}</h3><ArrowRight className="domain-arrow" size={18} /></article>)}</div></div></section>
+    <section className="domains-section page-section" id="domaines-intervention"><div className="container"><SectionTitle eyebrow="Nos champs d’action" title="Nos domaines d’intervention">Choisissez un domaine pour découvrir l’engagement correspondant de l’ONGD IDA.</SectionTitle><div className="domain-grid">{objectives.map(([title, , Icon]) => <Link className="domain-card domain-card-link" key={title} to={`/domaines/${objectiveSlug(title)}`} aria-label={`Découvrir le domaine : ${title}`}><span><Icon size={22} strokeWidth={1.8} /></span><h3>{title}</h3><ArrowRight className="domain-arrow" size={18} /></Link>)}</div></div></section>
 
     <HomeContentPreview />
 

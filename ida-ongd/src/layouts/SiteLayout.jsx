@@ -16,6 +16,7 @@ export default function SiteLayout() {
       [/^\/$/, 'ONGD IDA — protéger les enfants et autonomiser les jeunes filles', 'ONGD IDA — Initiative Dignité et Autonomisation : protection de l’enfant, éducation, autonomisation des jeunes filles et développement communautaire à Lubumbashi, Haut-Katanga, RDC.'],
       [/^\/a-propos/, 'À propos — ONGD IDA', 'Découvrez l’ONGD IDA, Initiative Dignité et Autonomisation, engagée pour les enfants, les jeunes filles et les communautés vulnérables en RDC.'],
       [/^\/objectifs/, 'Nos objectifs — ONGD IDA', 'Protection de l’enfant, éducation, formation, aide humanitaire, autonomisation des jeunes filles et développement communautaire.'],
+      [/^\/domaines\//, 'Domaines d’intervention — ONGD IDA', 'Découvrez les engagements de l’ONGD IDA pour la protection de l’enfant, l’autonomisation des jeunes filles, l’éducation et le développement communautaire.'],
       [/^\/actions/, 'Nos actions — ONGD IDA', 'Actions et initiatives de l’ONGD IDA pour protéger les enfants et accompagner les jeunes filles et les communautés vulnérables.'],
       [/^\/actualites/, 'Actualités — ONGD IDA', 'Actualités et informations de l’ONGD IDA à Lubumbashi, dans le Haut-Katanga et en République démocratique du Congo.'],
       [/^\/informations/, 'Informations importantes — ONGD IDA', 'Informations officielles de l’ONGD IDA, Initiative Dignité et Autonomisation.'],

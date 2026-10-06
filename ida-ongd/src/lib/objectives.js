@@ -23,3 +23,13 @@ export const objectives = [
   ['Entrepreneuriat et autonomisation économique', 'Favoriser les initiatives économiques, entrepreneuriales et professionnelles qui renforcent l’autonomie.', GraduationCap],
   ['Développement communautaire', 'Soutenir des initiatives durables qui encouragent l’inclusion, la solidarité et la participation communautaire.', Leaf],
 ]
+
+export function objectiveSlug(title) {
+  return String(title ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
