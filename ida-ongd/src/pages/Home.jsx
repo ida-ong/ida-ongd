@@ -6,6 +6,7 @@ import {
 import Button from '../components/Button'
 import ImportantInformationPreview from '../components/ImportantInformationPreview'
 import HomeContentPreview from '../components/HomeContentPreview'
+import GirlsEngagementCallout from '../components/GirlsEngagementCallout'
 import SectionTitle from '../components/SectionTitle'
 import { useAuth } from '../auth/useAuth'
 import { getDefaultRouteForRole } from '../lib/roles'
@@ -65,6 +66,8 @@ export default function Home() {
     <section className="domains-section page-section"><div className="container"><SectionTitle eyebrow="Nos champs d’action" title="Nos domaines d’intervention">Une approche globale au service de la dignité humaine et du développement local.</SectionTitle><div className="domain-grid">{domains.map(([title, Icon]) => <article className="domain-card" key={title}><span><Icon size={22} strokeWidth={1.8} /></span><h3>{title}</h3><ArrowRight className="domain-arrow" size={18} /></article>)}</div></div></section>
 
     <HomeContentPreview />
+
+    <GirlsEngagementCallout />
 
     <section className="network-section page-section"><div className="container network-layout"><div className="network-intro"><span className="eyebrow">Notre mobilisation citoyenne</span><h2>Devenir acteur du changement</h2><p>Le système communautaire IDA permet à chacun de participer à la sensibilisation et à la mobilisation dans son quartier. C’est un engagement citoyen, sans rémunération ni gain financier.</p><Button to={memberRoute}>{memberAction} <ArrowRight size={17} /></Button><div className="eligibility-note"><ShieldCheck size={20} /><span>À partir de 20 personnes mobilisées, un membre peut être éligible à une nomination comme leader. La nomination est validée par l’administration.</span></div></div><ol className="network-steps">{networkSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></li>)}</ol></div></section>
 

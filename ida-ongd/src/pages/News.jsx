@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowRight, Newspaper } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SectionTitle from '../components/SectionTitle'
+import GirlsEngagementCallout from '../components/GirlsEngagementCallout'
 import { formatJoinDate } from '../lib/date'
 import { getPublishedContent } from '../lib/content'
 
@@ -26,6 +27,7 @@ export default function News() {
         {article.image_url ? <img className="editorial-image" src={article.image_url} alt="" loading="lazy" onError={(event) => { event.currentTarget.hidden = true }} /> : <div className="editorial-image editorial-image-placeholder"><Newspaper size={34} aria-hidden="true" /></div>}
         <div className="editorial-card-content"><time className="editorial-date" dateTime={article.published_at}>{formatJoinDate(article.published_at)}</time>{article.category && <span className="editorial-category">{article.category}</span>}<h2>{article.title}</h2><p>{article.summary}</p><Link className="button button-outline" to={`/actualites/${encodeURIComponent(article.slug)}`}>Lire la suite <ArrowRight size={16} /></Link></div>
       </article>)}</div>}
+      <GirlsEngagementCallout />
     </div>
   </main>
 }
