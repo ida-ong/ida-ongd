@@ -7,6 +7,8 @@ import Button from '../components/Button'
 import ImportantInformationPreview from '../components/ImportantInformationPreview'
 import HomeContentPreview from '../components/HomeContentPreview'
 import SectionTitle from '../components/SectionTitle'
+import { useAuth } from '../auth/useAuth'
+import { getDefaultRouteForRole } from '../lib/roles'
 import { objectives } from '../lib/objectives'
 import heroImage from '../assets/hero.png'
 
@@ -29,6 +31,10 @@ const networkSteps = [
 ]
 
 export default function Home() {
+  const { user, role, registrationPending } = useAuth()
+  const memberRoute = user ? getDefaultRouteForRole(role) : registrationPending ? '/connexion' : '/inscription'
+  const memberAction = user ? 'Accéder à mon espace' : registrationPending ? 'Confirmer mon compte' : 'Devenir membre'
+  const joinAction = user ? 'Mon espace' : registrationPending ? 'Confirmer mon compte' : 'Rejoindre IDA'
   return <main>
     <section className="hero-section">
       <div className="container hero-content">
@@ -60,9 +66,9 @@ export default function Home() {
 
     <HomeContentPreview />
 
-    <section className="network-section page-section"><div className="container network-layout"><div className="network-intro"><span className="eyebrow">Notre mobilisation citoyenne</span><h2>Devenir acteur du changement</h2><p>Le système communautaire IDA permet à chacun de participer à la sensibilisation et à la mobilisation dans son quartier. C’est un engagement citoyen, sans rémunération ni gain financier.</p><Button to="/inscription">Devenir membre <ArrowRight size={17} /></Button><div className="eligibility-note"><ShieldCheck size={20} /><span>À partir de 20 personnes mobilisées, un membre peut être éligible à une nomination comme leader. La nomination est validée par l’administration.</span></div></div><ol className="network-steps">{networkSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></li>)}</ol></div></section>
+    <section className="network-section page-section"><div className="container network-layout"><div className="network-intro"><span className="eyebrow">Notre mobilisation citoyenne</span><h2>Devenir acteur du changement</h2><p>Le système communautaire IDA permet à chacun de participer à la sensibilisation et à la mobilisation dans son quartier. C’est un engagement citoyen, sans rémunération ni gain financier.</p><Button to={memberRoute}>{memberAction} <ArrowRight size={17} /></Button><div className="eligibility-note"><ShieldCheck size={20} /><span>À partir de 20 personnes mobilisées, un membre peut être éligible à une nomination comme leader. La nomination est validée par l’administration.</span></div></div><ol className="network-steps">{networkSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></li>)}</ol></div></section>
 
-    <section className="action-section"><div className="container action-panel"><div><span className="eyebrow eyebrow-light">Chaque geste compte</span><h2>Vous pouvez agir avec nous</h2><p>Faites un don, soutenez nos actions, rejoignez l’organisation ou partagez nos initiatives.</p></div><div className="action-links"><Button to="/dons" variant="white"><HeartHandshake size={17} /> Faire un don</Button><Button to="/inscription" variant="outline-light">Rejoindre IDA</Button><Button to="/actions" variant="text-light">Découvrir nos actions <ArrowRight size={17} /></Button></div></div></section>
+    <section className="action-section"><div className="container action-panel"><div><span className="eyebrow eyebrow-light">Chaque geste compte</span><h2>Vous pouvez agir avec nous</h2><p>Faites un don, soutenez nos actions, rejoignez l’organisation ou partagez nos initiatives.</p></div><div className="action-links"><Button to="/dons" variant="white"><HeartHandshake size={17} /> Faire un don</Button><Button to={memberRoute} variant="outline-light">{joinAction}</Button><Button to="/actions" variant="text-light">Découvrir nos actions <ArrowRight size={17} /></Button></div></div></section>
 
     <section className="transparency-section page-section"><div className="container transparency-inner"><span className="card-icon"><ShieldCheck size={22} /></span><div><span className="eyebrow">Engagement de transparence</span><h2>Des ressources au service de notre mission</h2><p>IDA s’engage à utiliser ses ressources de manière responsable et conformément à sa mission, dans le respect de la dignité, de la protection et de la confidentialité des personnes accompagnées. Nous ne publions pas de chiffres ni de résultats financiers non vérifiés.</p></div><Button to="/dons" variant="outline">Comprendre les dons <ArrowRight size={16} /></Button></div></section>
 

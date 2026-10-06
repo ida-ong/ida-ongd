@@ -1,11 +1,24 @@
 import { Link } from 'react-router-dom'
 import { MapPin, MessageCircle } from 'lucide-react'
+import { useAuth } from '../auth/useAuth'
+import { getDefaultRouteForRole } from '../lib/roles'
 import { WHATSAPP_NUMBER, WHATSAPP_URL } from '../lib/contact'
 import logo from '../assets/logo.png'
 
-const footerLinks = [['Accueil', '/'], ['À propos', '/a-propos'], ['Nos objectifs', '/objectifs'], ['Nos actions', '/actions'], ['Actualités', '/actualites'], ['Informations', '/informations'], ['Faire un don', '/dons'], ['Contact', '/contact'], ['Devenir membre', '/inscription'], ['Connexion', '/connexion']]
-
 export default function Footer() {
+  const { user, role, registrationPending } = useAuth()
+  const hasRegistered = Boolean(user || registrationPending)
+  const footerLinks = [
+    ['Accueil', '/'], ['À propos', '/a-propos'], ['Nos objectifs', '/objectifs'],
+    ['Nos actions', '/actions'], ['Actualités', '/actualites'], ['Informations', '/informations'],
+    ['Faire un don', '/dons'], ['Contact', '/contact'],
+    ...(user
+      ? [['Mon espace', getDefaultRouteForRole(role)]]
+      : hasRegistered
+        ? [['Confirmer mon compte', '/connexion']]
+        : [['Devenir membre', '/inscription'], ['Connexion', '/connexion']]),
+  ]
+
   return <footer className="site-footer">
     <div className="container footer-main">
       <div className="footer-brand"><img src={logo} alt="Logo IDA" /><div><strong>IDA — Initiative Dignité et Autonomisation</strong><p>Protéger les enfants, autonomiser les jeunes filles et contribuer au développement des communautés vulnérables.</p></div></div>

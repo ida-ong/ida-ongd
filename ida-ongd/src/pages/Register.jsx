@@ -6,6 +6,7 @@ import FormField from '../components/FormField'
 import { friendlyAuthError } from '../lib/authErrors'
 import { clearReferralCode, getSavedReferralCode } from '../lib/community'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../auth/useAuth'
 
 const initialValues = { firstName: '', lastName: '', phone: '', whatsapp: '', email: '', password: '', passwordConfirm: '', neighborhoodId: '' }
 
@@ -23,6 +24,7 @@ function validate(values, neighborhoods) {
 }
 
 export default function Register() {
+  const { markRegistrationPending, clearRegistrationPending } = useAuth()
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState({})
   const [neighborhoods, setNeighborhoods] = useState([])
@@ -98,6 +100,8 @@ export default function Register() {
       clearReferralCode()
       setReferralCode('')
       const confirmationRequired = !data.session
+      if (confirmationRequired) markRegistrationPending()
+      else clearRegistrationPending()
       setStatus({ type: 'success', message: confirmationRequired
         ? 'Votre demande d’inscription a bien été envoyée. Vérifiez votre email pour confirmer votre compte. Votre rattachement communautaire sera enregistré par IDA.'
         : 'Votre compte a été créé. Votre rattachement communautaire est en cours de préparation.' })

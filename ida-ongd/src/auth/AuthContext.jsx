@@ -5,7 +5,32 @@ import { normalizeRole } from '../lib/roles'
 
 export function AuthProvider({ children }) {
   const [auth, setAuth] = useState({ session: null, user: null, profile: null, loading: true, profileError: null })
+  const [registrationPending, setRegistrationPending] = useState(() => {
+    try {
+      return window.sessionStorage.getItem('ida-registration-pending') === 'true'
+    } catch {
+      return false
+    }
+  })
   const profileRequestId = useRef(0)
+
+  const markRegistrationPending = useCallback(() => {
+    try {
+      window.sessionStorage.setItem('ida-registration-pending', 'true')
+    } catch {
+      // The pending state still applies for this render if storage is blocked.
+    }
+    setRegistrationPending(true)
+  }, [])
+
+  const clearRegistrationPending = useCallback(() => {
+    try {
+      window.sessionStorage.removeItem('ida-registration-pending')
+    } catch {
+      // Authentication state remains authoritative if storage is blocked.
+    }
+    setRegistrationPending(false)
+  }, [])
 
   const readProfile = useCallback(async (session, active = () => true) => {
     const requestId = ++profileRequestId.current
@@ -54,13 +79,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let mounted = true
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user || event === 'SIGNED_OUT') clearRegistrationPending()
       queueMicrotask(() => {
         if (mounted) void readProfile(session, () => mounted)
       })
     })
     return () => { mounted = false; subscription.unsubscribe() }
-  }, [readProfile])
+  }, [clearRegistrationPending, readProfile])
 
   const refreshProfile = useCallback(async () => {
     if (auth.session) await readProfile(auth.session)
@@ -70,6 +96,9 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       ...auth,
+      registrationPending,
+      markRegistrationPending,
+      clearRegistrationPending,
       role,
       isMember: Boolean(auth.user),
       isLeader: role === 'leader',

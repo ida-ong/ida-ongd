@@ -1,6 +1,8 @@
 import { BookOpen, HeartHandshake, ShieldCheck } from 'lucide-react'
 import SectionTitle from '../components/SectionTitle'
 import Button from '../components/Button'
+import { useAuth } from '../auth/useAuth'
+import { getDefaultRouteForRole } from '../lib/roles'
 import { objectives } from '../lib/objectives'
 import founderImage from '../assets/fondateur.jpg'
 import ClaudiaImage from '../assets/coofondatrice.jpg'
@@ -19,6 +21,9 @@ const founders = [
 ]
 
 export default function About() {
+  const { user, role, registrationPending } = useAuth()
+  const memberRoute = user ? getDefaultRouteForRole(role) : registrationPending ? '/connexion' : '/inscription'
+  const memberAction = user ? 'Mon espace' : registrationPending ? 'Confirmer mon compte' : 'Rejoindre IDA'
   return (
     <main className="page-section inner-page">
       <div className="container">
@@ -54,7 +59,7 @@ export default function About() {
           ))}
         </div>
 
-        <div className="about-cta"><Button to="/objectifs" variant="outline">Nos objectifs</Button> <Button to="/dons">Faire un don</Button> <Button to="/inscription" variant="text">Rejoindre IDA</Button></div>
+        <div className="about-cta"><Button to="/objectifs" variant="outline">Nos objectifs</Button> <Button to="/dons">Faire un don</Button> <Button to={memberRoute} variant="text">{memberAction}</Button></div>
 
         <section className="about-founders" aria-label="Équipe fondatrice d’IDA">
           <SectionTitle eyebrow="Notre équipe" title="Les personnes fondatrices">
