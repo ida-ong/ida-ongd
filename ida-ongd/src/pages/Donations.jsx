@@ -13,12 +13,13 @@ const objectives = [
   'Aide humanitaire',
   'Accompagnement social et psychosocial',
   'Développement communautaire',
+  'Don général',
   'Je laisse l’ONGD IDA utiliser mon don là où les besoins sont prioritaires',
 ]
 const suggestedAmounts = ['5', '10', '20', '50', '100']
 
 const initialValues = {
-  objective: 'Je laisse l’ONGD IDA utiliser mon don là où les besoins sont prioritaires',
+  objective: 'Don général',
   amount: '20',
   currency: 'USD',
   customAmount: false,

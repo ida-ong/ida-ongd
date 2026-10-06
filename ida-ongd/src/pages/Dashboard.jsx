@@ -52,7 +52,7 @@ export default function Dashboard() {
   }
 
   const whatsappLink = affiliateLink
-    ? `https://wa.me/?text=${encodeURIComponent(`Je participe aux actions communautaires de l’ONGD IDA — Initiative Dignité Autonomisation à Lubumbashi. Découvre l’initiative et rejoins-nous : ${affiliateLink}`)}`
+    ? `https://wa.me/?text=${encodeURIComponent(`Je participe aux actions communautaires de l’ONGD IDA — Initiative Dignité et Autonomisation à Lubumbashi. Découvre notre engagement pour les enfants, les jeunes filles et les communautés vulnérables, et rejoins-nous : ${affiliateLink}`)}`
     : undefined
 
   return <main className="dashboard-page page-section"><div className="container">
@@ -86,6 +86,6 @@ export default function Dashboard() {
         <Link className="button button-outline network-tree-link" to="/dashboard/reseau">Voir l’arbre complet de mon réseau <ExternalLink size={15} /></Link>
       </section>
     </div>
-    <div className="dashboard-help"><HeartHandshake size={20} /><p>Merci de contribuer à la dignité et à l’autonomisation des communautés de Lubumbashi.</p><Link to="/actions">Découvrir nos actions →</Link></div>
+    <div className="dashboard-help"><HeartHandshake size={20} /><p>Merci de contribuer à la protection des enfants, à l’autonomisation des jeunes filles et au développement des communautés de Lubumbashi.</p><Link to="/actions">Découvrir nos actions →</Link></div>
   </div></main>
 }
