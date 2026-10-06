@@ -20,6 +20,12 @@ Les colonnes existantes utilisées par la migration sont `profiles.id`, `first_n
 
 Contrôle PostgREST en lecture seule réalisé le 6 octobre 2026, sans sélectionner de lignes : `news`, `important_information` et `donations` sont exposées. `news.status` existe; `news.category` est absente. `important_information` possède `is_active`, `priority`, `published_at`, `created_by`, `created_at` et `updated_at`, mais **pas** `status`. `public_actions` n’est pas présente dans le cache PostgREST. Dans `donations`, `amount`, `currency`, `status`, `donor_name`, `payment_method` et `created_at` sont visibles, mais `objective` ne l’est pas; ces résultats ne révèlent pas l’état RLS ni les données des donateurs. Le projet Supabase n’est pas lié au CLI de ce workspace.
 
+Un contrôle supplémentaire des seules colonnes confirme que les tables opérationnelles distantes ne correspondent pas à la migration Phase 5 actuelle : `missions` n’expose pas `leader_id` ni `objective` et utilise notamment `start_date`/`end_date`; la table de liaison `mission_assignments` existe et expose `mission_id`, `leader_id`, `assigned_by`, `assigned_at`. `activities` n’expose pas `leader_id`, `activity_type`, `participants_count` ni `mission_id`; `reports` n’expose pas `leader_id`, `summary`, `activities_done`, `participants_count`, `performed_on` ni `observations`, mais expose `author_id`, `title`, `description`, `activity_date`, `location`, `results` et `status`. `report_history` et `admin_action_logs` ne sont pas présentes dans le cache API. Ce décalage implique que la migration Phase 5 présente dans le dépôt **ne doit pas être exécutée telle quelle** : ses `CREATE TABLE IF NOT EXISTS` laisseraient les tables existantes intactes puis les index, RPC et policies qui supposent les autres colonnes échoueraient ou ne protégeraient pas le bon propriétaire.
+
+Des appels PostgREST incomplets, qui s’arrêtent à la résolution des signatures sans exécuter de mutation, indiquent également que `set_member_role`, `create_mission`, `create_activity`, `create_report` et `validate_report` ne sont pas publiées dans le cache de fonctions distant. Les interfaces qui en dépendent ne peuvent donc pas être considérées comme fonctionnelles dans la base distante actuelle. Les colonnes détectées ne sont que celles testées individuellement via la clé publique, pas un inventaire exhaustif du schéma.
+
+Les RPC de réseau `get_network_member_count`, `get_my_network_stats` et `get_my_network_members` sont également absentes du cache. Les colonnes nécessaires à la migration Phase 3 ont été confirmées par probes sans lignes (`profiles`, `neighborhoods`), mais il faut encore examiner dans Supabase les policies RLS préexistantes avant validation par rôle. La migration Phase 4 est nécessaire avant Phase 8 car son RPC contrôlé `set_member_role` n’existe pas et le journal `admin_action_logs` est absent.
+
 Le client éditorial détecte l’ancien schéma d’`important_information` et utilise `is_active` pour publier/dépublier au lieu d’envoyer une colonne `status` inexistante. Tant que le statut distinct n’est pas migré, l’archivage des informations est désactivé. Les actions éditoriales publiques sont séparées des enregistrements opérationnels de `activities`.
 
 ### Migration Phase 7
@@ -33,6 +39,12 @@ RLS et fonctions doivent être vérifiées dans Supabase Dashboard avec un accè
 ## Phase 8 — éligibilité leader côté base
 
 `supabase/migrations/20261006120000_phase8_leader_eligibility.sql` ajoute un trigger défensif sur la table existante `profiles`. Une transition `member` vers `leader` est rejetée par la base tant que le membre ne compte pas au moins 20 descendants dans `referred_by`. Aucun rôle n’est attribué automatiquement et aucune colonne ou donnée n’est créée, supprimée ou modifiée. Appliquer cette migration au projet distant pour protéger également les appels directs au RPC de changement de rôle.
+
+## Phase 9 — confidentialité du journal des rôles
+
+Après Phase 4, appliquer `supabase/migrations/20261007100000_phase9_admin_audit_rls.sql`. Elle réserve la lecture du journal des changements de rôle aux administrateurs/fondateur et retire les mutations directes du navigateur; le RPC `set_member_role` reste le chemin d’écriture. La sécurisation des tables opérationnelles `missions`, `activities` et `reports` n’est pas incluse ici : le modèle distant utilise des colonnes et la relation `mission_assignments` différentes du modèle Phase 5 du dépôt, et doit d’abord être réaligné avant d’écrire leurs policies.
+
+Les requêtes read-only de vérification des états RLS, policies, colonnes, contraintes et grants se trouvent dans `supabase/rls-audit.sql`. La durcification des dossiers opérationnels doit attendre une migration de compatibilité Phase 5 basée sur les tables `mission_assignments` et les colonnes réellement présentes; aucune policy supposant `missions.leader_id` ou `reports.leader_id` ne doit être appliquée.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

@@ -5,8 +5,13 @@
 - Aucun SDK ou fournisseur de paiement n’est présent dans les dépendances ni dans le code examiné.
 - Le projet est une application React/Vite statique ; `vercel.json` ne configure que le routage SPA.
 - Aucun endpoint de paiement ni webhook Supabase Edge Function n’a été trouvé dans le dépôt.
-- La documentation du dépôt mentionne une table Supabase `donations`, mais le dépôt n’est pas lié au projet Supabase et ses colonnes, relations et politiques RLS n’ont donc pas pu être vérifiées pendant cette mise à jour.
+- Le contrôle PostgREST sans lecture de lignes confirme que `public.donations` existe et expose `id`, `amount`, `currency`, `status`, `donor_name`, `payment_method` et `created_at`. `objective`, `first_name`, `last_name`, `email`, `phone`, `provider`, `reference` et `transaction_id` ne sont pas exposés sous ces noms. La contrainte et les valeurs permises de `status`, relations, triggers et politiques RLS n’ont pas pu être consultés avec la clé publique.
+- Le dépôt n’est pas lié au CLI Supabase; les catalogues PostgreSQL, les contraintes et les policies distantes ne sont pas accessibles depuis les identifiants locaux.
 - Aucun paiement ne peut être créé, confirmé ou remboursé à ce stade. Le formulaire public ne fait que préparer une demande WhatsApp et le précise explicitement.
+
+## Blocage Vercel observé
+
+La version publique `https://ida-ongd.vercel.app/` a été ouverte le 6 octobre 2026 et affiche l’erreur de démarrage « Configuration de l’application incomplète ». La console indique que `VITE_SUPABASE_URL` et la clé publique de navigateur ne sont pas injectées dans le build de production. Le CLI Vercel n’est pas installé ni lié dans ce workspace; ces variables n’ont donc pas pu être corrigées à distance.
 
 ## Décisions requises avant l’implémentation
 

@@ -26,7 +26,7 @@ using (
     select 1
     from public.profiles as p
     where p.id = auth.uid()
-      and lower(coalesce(p.role, 'member')) in ('leader', 'admin', 'administrator', 'founder', 'fondateur')
+      and lower(coalesce(p.role, 'member')) in ('admin', 'administrator', 'founder', 'fondateur')
   )
 );
 
