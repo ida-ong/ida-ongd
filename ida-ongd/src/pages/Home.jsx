@@ -5,9 +5,10 @@ import {
 } from 'lucide-react'
 import Button from '../components/Button'
 import ImportantInformationPreview from '../components/ImportantInformationPreview'
+import HomeContentPreview from '../components/HomeContentPreview'
 import SectionTitle from '../components/SectionTitle'
 import { objectives } from '../lib/objectives'
-import logo from '../assets/logo.png'
+import heroImage from '../assets/hero.png'
 
 const domains = [
   ['Protection de l’enfant', ShieldCheck], ['Jeunes filles', HeartPulse],
@@ -38,7 +39,7 @@ export default function Home() {
           <p className="hero-description">L’ONGD IDA agit pour protéger les enfants vulnérables, favoriser l’éducation et contribuer à l’autonomisation des jeunes filles et des communautés.</p>
           <div className="hero-actions"><Button to="/dons" className="hero-donate"><HeartHandshake size={18} /> FAIRE UN DON</Button><Button to="/actions" variant="outline">Découvrir nos actions</Button></div>
         </div>
-        <div className="hero-visual hero-visual-brand"><img src={logo} alt="ONGD IDA — Initiative Dignité et Autonomisation" /><div className="hero-visual-note"><span className="note-icon"><HeartHandshake size={20} /></span><span><strong>Agir avec dignité</strong><small>Protéger · Éduquer · Autonomiser</small></span></div></div>
+        <div className="hero-visual"><img src={heroImage} alt="Bannière de l’ONGD IDA — illustration de dignité et d’espoir" /><div className="hero-visual-note"><span className="note-icon"><HeartHandshake size={20} /></span><span><strong>Agir avec dignité</strong><small>Protéger · Éduquer · Autonomiser</small></span></div></div>
       </div>
       <a className="hero-scroll" href="#qui-sommes-nous"><ArrowDown size={15} /> Découvrir IDA</a>
     </section>
@@ -49,13 +50,15 @@ export default function Home() {
 
     <ImportantInformationPreview />
 
-    <section className="page-section about-section" id="qui-sommes-nous"><div className="container about-grid"><div className="about-mark"><div className="about-logo-frame about-logo-brand"><img src={logo} alt="Logo de l’ONGD IDA" /></div><div className="founded-badge"><span>Depuis</span><strong>26.09.2026</strong><small>Création d’IDA</small></div></div><div className="about-copy"><span className="eyebrow">Notre identité</span><h2>Qui sommes-nous ?</h2><p className="lead">ONGD IDA — Initiative Dignité et Autonomisation.</p><p>Nous œuvrons principalement pour protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables.</p><p>À Lubumbashi, en République démocratique du Congo, nos priorités incluent la protection, l’éducation, la formation, l’accompagnement social et le développement communautaire. Les actions réalisées et les projets à venir sont présentés séparément dans nos publications.</p><div className="about-meta"><span><MapPin size={16} /> Lubumbashi, RDC</span><span><CalendarMark /> Créée le 26 septembre 2026</span></div><Button to="/a-propos" variant="text">En savoir plus sur IDA <ArrowRight size={16} /></Button></div></div></section>
+    <section className="page-section about-section" id="qui-sommes-nous"><div className="container about-grid"><div className="about-mark"><div className="about-logo-frame"><img src={heroImage} alt="Bannière de l’ONGD IDA" /></div><div className="founded-badge"><span>Depuis</span><strong>26.09.2026</strong><small>Création d’IDA</small></div></div><div className="about-copy"><span className="eyebrow">Notre identité</span><h2>Qui sommes-nous ?</h2><p className="lead">ONGD IDA — Initiative Dignité et Autonomisation.</p><p>Nous œuvrons principalement pour protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables.</p><p>À Lubumbashi, en République démocratique du Congo, nos priorités incluent la protection, l’éducation, la formation, l’accompagnement social et le développement communautaire. Les actions réalisées et les projets à venir sont présentés séparément dans nos publications.</p><div className="about-meta"><span><MapPin size={16} /> Lubumbashi, RDC</span><span><CalendarMark /> Créée le 26 septembre 2026</span></div><Button to="/a-propos" variant="text">En savoir plus sur IDA <ArrowRight size={16} /></Button></div></div></section>
 
     <section className="purpose-section"><div className="container purpose-inner"><div><span className="eyebrow eyebrow-light">Notre raison d’agir</span><h2>Notre objectif général</h2><p>Protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables, par l’éducation, la prévention, l’accompagnement et des initiatives de développement local.</p></div><div className="purpose-emblem"><HeartHandshake size={52} strokeWidth={1.2} /><span>Dignité<br />&amp; action</span></div></div></section>
 
     <section className="page-section objectives-section" id="nos-objectifs"><div className="container"><SectionTitle eyebrow="Notre engagement" title="Nos objectifs">Protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables.</SectionTitle><div className="objective-grid">{objectives.map(([title, text, Icon], index) => <article className="objective-card" key={title}><span className="card-index">{String(index + 1).padStart(2, '0')}</span><span className="card-icon"><Icon size={21} strokeWidth={1.8} /></span><h3>{title}</h3><p>{text}</p></article>)}</div><div className="objectives-more"><Button to="/objectifs" variant="outline">Voir nos objectifs en détail <ArrowRight size={16} /></Button></div></div></section>
 
     <section className="domains-section page-section"><div className="container"><SectionTitle eyebrow="Nos champs d’action" title="Nos domaines d’intervention">Une approche globale au service de la dignité humaine et du développement local.</SectionTitle><div className="domain-grid">{domains.map(([title, Icon]) => <article className="domain-card" key={title}><span><Icon size={22} strokeWidth={1.8} /></span><h3>{title}</h3><ArrowRight className="domain-arrow" size={18} /></article>)}</div></div></section>
+
+    <HomeContentPreview />
 
     <section className="network-section page-section"><div className="container network-layout"><div className="network-intro"><span className="eyebrow">Notre mobilisation citoyenne</span><h2>Devenir acteur du changement</h2><p>Le système communautaire IDA permet à chacun de participer à la sensibilisation et à la mobilisation dans son quartier. C’est un engagement citoyen, sans rémunération ni gain financier.</p><Button to="/inscription">Devenir membre <ArrowRight size={17} /></Button><div className="eligibility-note"><ShieldCheck size={20} /><span>À partir de 20 personnes mobilisées, un membre peut être éligible à une nomination comme leader. La nomination est validée par l’administration.</span></div></div><ol className="network-steps">{networkSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><p>{step}</p></li>)}</ol></div></section>
 

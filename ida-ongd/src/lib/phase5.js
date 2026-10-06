@@ -116,7 +116,7 @@ export async function getAdminReports() {
 
 export async function getDashboardStats() {
   const [{ data: profiles, error: profilesError }, { data: missions, error: missionsError }, { data: activities, error: activitiesError }, { data: reports, error: reportsError }] = await Promise.all([
-    supabase.from('profiles').select('id, role, is_active, neighborhood_id'),
+    supabase.from('profiles').select('id, role, is_active, neighborhood_id, referred_by'),
     supabase.from('missions').select('id, status, created_at, leader_id, neighborhood_id'),
     supabase.from('activities').select('id, activity_date, leader_id, neighborhood_id, participants_count'),
     supabase.from('reports').select('id, status, leader_id, mission_id, created_at')
@@ -137,6 +137,28 @@ export async function getDashboardStats() {
   const activeMembers = profilesList.filter((profile) => profile.is_active !== false).length
   const neighborhoodsCount = new Set(profilesList.filter((profile) => profile.neighborhood_id).map((profile) => profile.neighborhood_id)).size
 
+  const membersByReferrer = new Map()
+  profilesList.forEach((profile) => {
+    if (!profile.referred_by) return
+    const children = membersByReferrer.get(profile.referred_by) ?? []
+    children.push(profile.id)
+    membersByReferrer.set(profile.referred_by, children)
+  })
+  const eligibleMembers = profilesList.filter((profile) => {
+    if (String(profile.role ?? '').toLowerCase() !== 'member') return false
+    const visited = new Set([profile.id])
+    const stack = [...(membersByReferrer.get(profile.id) ?? [])]
+    let count = 0
+    while (stack.length && count < 20) {
+      const memberId = stack.pop()
+      if (visited.has(memberId)) continue
+      visited.add(memberId)
+      count += 1
+      stack.push(...(membersByReferrer.get(memberId) ?? []))
+    }
+    return count >= 20
+  }).length
+
   const pendingReports = reportsList.filter((report) => ['submitted', 'under_review', 'resubmitted'].includes(String(report.status ?? '').toLowerCase())).length
   const validatedReports = reportsList.filter((report) => ['approved', 'validated'].includes(String(report.status ?? '').toLowerCase())).length
   const correctionReports = reportsList.filter((report) => ['needs_revision', 'correction_requested'].includes(String(report.status ?? '').toLowerCase())).length
@@ -147,6 +169,7 @@ export async function getDashboardStats() {
     admins: adminCount,
     neighborhoods: neighborhoodsCount,
     activeMembers,
+    eligibleMembers,
     activeMissions: missionsList.filter((mission) => ['assigned', 'in_progress'].includes(String(mission.status ?? '').toLowerCase())).length,
     completedMissions: missionsList.filter((mission) => String(mission.status ?? '').toLowerCase() === 'completed').length,
     pendingReports,

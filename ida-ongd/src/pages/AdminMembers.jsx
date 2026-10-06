@@ -126,9 +126,9 @@ export default function AdminMembers() {
                   <td>
                     {normalizeRole(member.role) === 'leader' ? (
                       <button className="button button-outline small-button" type="button" onClick={() => handleLeaderNomination(member.id, 'member')}>Retirer le rôle</button>
-                    ) : (
+                    ) : normalizeRole(member.role) === 'member' && Number(member.network_count) >= 20 ? (
                       <button className="button button-primary small-button" type="button" onClick={() => handleLeaderNomination(member.id, 'leader')}>Nommer leader</button>
-                    )}
+                    ) : normalizeRole(member.role) === 'member' ? <span>{member.network_count ?? 0}/20 personnes</span> : <span>—</span>}
                   </td>
                 </tr>
               ))}

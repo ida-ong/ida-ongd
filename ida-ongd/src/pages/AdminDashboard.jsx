@@ -6,9 +6,10 @@ import StatsCard from '../components/StatsCard'
 import { getDashboardStats } from '../lib/phase5'
 
 export default function AdminDashboard() {
-  const { profile } = useAuth()
-  const [stats, setStats] = useState({ totalMembers: 0, leaders: 0, admins: 0, neighborhoods: 0, activeMembers: 0, activeMissions: 0, completedMissions: 0, pendingReports: 0, validatedReports: 0, correctionReports: 0, activities: 0, participants: 0 })
+  const { role } = useAuth()
+  const [stats, setStats] = useState({ totalMembers: 0, leaders: 0, admins: 0, neighborhoods: 0, activeMembers: 0, eligibleMembers: 0, activeMissions: 0, completedMissions: 0, pendingReports: 0, validatedReports: 0, correctionReports: 0, activities: 0, participants: 0 })
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -17,6 +18,9 @@ export default function AdminDashboard() {
         const data = await getDashboardStats()
         if (!active) return
         setStats(data)
+      } catch (error) {
+        console.error('[IDA] Impossible de charger les statistiques administratives.', error)
+        if (active) setLoadError(true)
       } finally {
         if (active) setLoading(false)
       }
@@ -33,21 +37,24 @@ export default function AdminDashboard() {
             <span className="eyebrow">Espace administration</span>
             <h1>Vue générale</h1>
           </div>
-          <span className="role-pill"><ShieldCheck size={16} /> {profile?.role === 'founder' ? 'Fondateur' : 'Administrateur'}</span>
+          <span className="role-pill"><ShieldCheck size={16} /> {role === 'founder' ? 'Fondateur' : 'Administrateur'}</span>
         </div>
 
+        {loadError && <p className="form-notice notice-error" role="status">Les statistiques ne sont pas disponibles. Vérifiez l’accès Supabase et les migrations appliquées.</p>}
         <div className="stats-grid">
-          <StatsCard label="Membres actifs" value={loading ? '…' : stats.activeMembers} accent="green" />
-          <StatsCard label="Leaders" value={loading ? '…' : stats.leaders} accent="blue" />
-          <StatsCard label="Administrateurs" value={loading ? '…' : stats.admins} accent="gold" />
-          <StatsCard label="Quartiers" value={loading ? '…' : stats.neighborhoods} accent="navy" />
-          <StatsCard label="Missions en cours" value={loading ? '…' : stats.activeMissions} accent="green" />
-          <StatsCard label="Missions terminées" value={loading ? '…' : stats.completedMissions} accent="blue" />
-          <StatsCard label="Rapports en attente" value={loading ? '…' : stats.pendingReports} accent="gold" />
-          <StatsCard label="Rapports validés" value={loading ? '…' : stats.validatedReports} accent="green" />
-          <StatsCard label="Rapports à corriger" value={loading ? '…' : stats.correctionReports} accent="navy" />
-          <StatsCard label="Activités" value={loading ? '…' : stats.activities} accent="blue" />
-          <StatsCard label="Participants" value={loading ? '…' : stats.participants} accent="gold" />
+          <StatsCard label="Membres au total" value={loading ? '…' : loadError ? '—' : stats.totalMembers} accent="navy" />
+          <StatsCard label="Membres actifs" value={loading ? '…' : loadError ? '—' : stats.activeMembers} accent="green" />
+          <StatsCard label="Leaders" value={loading ? '…' : loadError ? '—' : stats.leaders} accent="blue" />
+          <StatsCard label="Éligibles (20+)" value={loading ? '…' : loadError ? '—' : stats.eligibleMembers} accent="gold" />
+          <StatsCard label="Administrateurs" value={loading ? '…' : loadError ? '—' : stats.admins} accent="gold" />
+          <StatsCard label="Quartiers" value={loading ? '…' : loadError ? '—' : stats.neighborhoods} accent="navy" />
+          <StatsCard label="Missions en cours" value={loading ? '…' : loadError ? '—' : stats.activeMissions} accent="green" />
+          <StatsCard label="Missions terminées" value={loading ? '…' : loadError ? '—' : stats.completedMissions} accent="blue" />
+          <StatsCard label="Rapports en attente" value={loading ? '…' : loadError ? '—' : stats.pendingReports} accent="gold" />
+          <StatsCard label="Rapports validés" value={loading ? '…' : loadError ? '—' : stats.validatedReports} accent="green" />
+          <StatsCard label="Rapports à corriger" value={loading ? '…' : loadError ? '—' : stats.correctionReports} accent="navy" />
+          <StatsCard label="Activités" value={loading ? '…' : loadError ? '—' : stats.activities} accent="blue" />
+          <StatsCard label="Participants" value={loading ? '…' : loadError ? '—' : stats.participants} accent="gold" />
         </div>
 
         <div className="admin-layout">
@@ -92,24 +99,24 @@ export default function AdminDashboard() {
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Missions</span>
-                <h2>À préparer</h2>
+                <h2>Gestion et suivi</h2>
               </div>
               <ClipboardList size={22} />
             </div>
-              <p className="muted-text">Créer, assigner et suivre les missions destinées aux leaders communautaires.</p>
-              <Link to="/admin/missions" className="button button-primary">Gérer les missions</Link>
+            <p className="muted-text">Créer, assigner et suivre les missions destinées aux leaders communautaires.</p>
+            <Link to="/admin/missions" className="button button-primary">Gérer les missions</Link>
           </section>
 
           <section className="admin-panel">
             <div className="panel-header">
               <div>
                 <span className="eyebrow">Actualités</span>
-                <h2>Tableau de bord</h2>
+                <h2>Publications et rapports</h2>
               </div>
               <Activity size={22} />
             </div>
-            <p className="muted-text">Consulter les rapports envoyés et suivre leur validation.</p>
-            <Link to="/admin/rapports" className="button button-outline">Voir les rapports</Link>
+            <p className="muted-text">Modérer les actualités, actions publiques, informations importantes et rapports des leaders.</p>
+            <div className="panel-actions"><Link to="/admin/actualites" className="button button-outline">Actualités</Link><Link to="/admin/actions" className="button button-outline">Actions</Link><Link to="/admin/informations" className="button button-outline">Informations</Link><Link to="/admin/rapports" className="button button-primary">Rapports</Link></div>
           </section>
 
           <section className="admin-panel">

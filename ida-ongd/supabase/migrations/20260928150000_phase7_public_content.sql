@@ -5,6 +5,7 @@
 
 -- Existing news columns reused: id, title, slug, excerpt (public summary),
 -- content, author_id (author), status, published_at, created_at, updated_at.
+-- `category` is added below after checking the linked schema; it was absent.
 create table if not exists public.news (
   id uuid primary key default gen_random_uuid(),
   title text not null check (char_length(btrim(title)) between 3 and 180),
@@ -12,6 +13,7 @@ create table if not exists public.news (
   excerpt text not null check (char_length(btrim(excerpt)) between 3 and 600),
   content text not null check (char_length(btrim(content)) >= 3),
   image_url text,
+  category text,
   author_id uuid references public.profiles(id) on delete set null,
   status text not null default 'draft' check (status in ('draft', 'published', 'archived')),
   published_at timestamptz,
@@ -20,6 +22,7 @@ create table if not exists public.news (
 );
 
 alter table public.news add column if not exists image_url text;
+alter table public.news add column if not exists category text;
 create index if not exists news_publication_idx
   on public.news (published_at desc)
   where status = 'published';

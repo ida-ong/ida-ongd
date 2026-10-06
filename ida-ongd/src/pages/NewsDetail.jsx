@@ -23,7 +23,7 @@ export default function NewsDetail() {
   return <main className="page-section inner-page">
     <article className="container editorial-detail">
       <Link className="network-back-link" to="/actualites"><ArrowLeft size={17} /> Toutes les actualités</Link>
-      <header className="editorial-detail-header"><span className="eyebrow">Actualités IDA</span><h1>{article.title}</h1><time className="editorial-date" dateTime={article.published_at}>{formatJoinDate(article.published_at)}</time><p className="editorial-byline">Équipe IDA</p></header>
+      <header className="editorial-detail-header"><span className="eyebrow">Actualités IDA</span>{article.category && <span className="editorial-category">{article.category}</span>}<h1>{article.title}</h1><time className="editorial-date" dateTime={article.published_at}>{formatJoinDate(article.published_at)}</time><p className="editorial-byline">Équipe IDA</p></header>
       {article.image_url && <img className="editorial-detail-image" src={article.image_url} alt="" onError={(event) => { event.currentTarget.hidden = true }} />}
       <p className="editorial-lead">{article.summary}</p>
       <div className="editorial-body">{article.content}</div>

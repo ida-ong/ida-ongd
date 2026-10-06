@@ -88,9 +88,6 @@ p { line-height: 1.75; }
 .hero-visual { position: absolute; z-index: 0; top: 0; right: max(calc((100vw - 1160px) / 2 - 22px), -18px); bottom: 0; width: 54%; overflow: hidden; }
 .hero-visual::before { position: absolute; z-index: 1; inset: 0 auto 0 0; width: 24%; content: ''; background: linear-gradient(90deg, #f4f9fc, transparent); }
 .hero-visual > img { width: 100%; height: 100%; object-fit: cover; object-position: 78% center; }
-.hero-visual-brand { display: grid; place-items: center; background: radial-gradient(circle at 70% 30%, #e1f5e6, transparent 34%), linear-gradient(135deg, #dcecf8, #eef7f0); }
-.hero-visual-brand::before { display: none; }
-.hero-visual-brand > img { width: min(69%, 470px); height: auto; max-height: 84%; border-radius: 18px; object-fit: contain; box-shadow: 0 22px 60px rgba(16,60,112,.12); }
 .hero-visual-note { position: absolute; z-index: 2; right: 6%; bottom: 54px; display: flex; align-items: center; gap: 13px; padding: 14px 18px; border: 1px solid rgba(255,255,255,.7); border-radius: 9px; background: rgba(255,255,255,.94); box-shadow: var(--shadow); }
 .note-icon { display: grid; width: 39px; height: 39px; place-items: center; border-radius: 50%; color: var(--green); background: #e9f6ed; }
 .hero-visual-note span:last-child { display: grid; gap: 3px; }
@@ -113,8 +110,6 @@ p { line-height: 1.75; }
 .about-mark { position: relative; max-width: 485px; padding: 0 26px 25px 0; }
 .about-logo-frame { height: 355px; overflow: hidden; border-radius: 12px; background: #eef5f6; box-shadow: var(--shadow); }
 .about-logo-frame img { width: 100%; height: 100%; object-fit: cover; object-position: 76% center; }
-.about-logo-brand { display: grid; place-items: center; background: linear-gradient(135deg, #e5f0f8, #edf7ef); }
-.about-logo-brand img { width: min(76%, 300px); height: auto; object-fit: contain; }
 .founded-badge { position: absolute; right: -5px; bottom: 0; display: grid; width: 154px; min-height: 120px; align-content: center; gap: 4px; padding: 17px; border: 5px solid white; border-radius: 10px; color: white; background: var(--navy); box-shadow: 0 9px 30px rgba(16,60,112,.2); }
 .founded-badge span, .founded-badge small { color: #d5e5f1; font-size: .69rem; }
 .founded-badge strong { color: white; font-size: 1.03rem; }
@@ -227,6 +222,12 @@ p { line-height: 1.75; }
 .about-page-copy p { margin-bottom: 16px; }
 .about-page-copy strong { color: var(--navy); }
 .about-values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 39px; }
+.about-mission-vision { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 36px; }
+.about-mission-vision article { padding: 23px; border: 1px solid var(--line); border-radius: 10px; background: var(--pale); }
+.about-mission-vision h2 { margin-bottom: 9px; font-size: 1.18rem; }
+.about-mission-vision p { margin: 0; color: var(--muted); font-size: .86rem; }
+.about-interventions { margin-top: 62px; }
+.about-interventions .section-title { margin-bottom: 27px; }
 .about-values .domain-card { display: block; }
 .about-values .domain-card h3 { margin: 13px 0 6px; }
 .about-values .domain-card p { margin: 0; color: var(--muted); font-size: .82rem; }
@@ -561,12 +562,24 @@ p { line-height: 1.75; }
 
 /* Phase 7 public content and donation request preparation */
 .content-state { padding: 18px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: var(--pale); text-align: center; }
+.home-content-preview { background: var(--pale); }
+.home-content-preview .section-title { margin-bottom: 31px; }
+.home-content-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.home-content-columns > section { min-width: 0; }
+.home-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+.home-preview-heading h2 { margin: 0; font-size: 1.18rem; }
+.home-preview-heading > a { display: inline-flex; align-items: center; gap: 5px; color: var(--green); font-size: .77rem; font-weight: 750; text-decoration: none; }
+.home-preview-card .editorial-image { aspect-ratio: 16 / 8; }
+.home-preview-card .editorial-card-content { gap: 9px; padding: 18px; }
+.home-preview-card .editorial-card-content h3 { margin: 0; font-size: 1.05rem; }
+.home-preview-card .editorial-card-content > p { font-size: .82rem; }
 .editorial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 20px; }
 .editorial-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--white); box-shadow: 0 10px 28px rgba(22,55,82,.055); }
 .editorial-image { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--pale); }
 .editorial-image-placeholder { display: grid; place-items: center; color: var(--green); background: linear-gradient(135deg, var(--pale), #e9f4ed); }
 .editorial-card-content { display: grid; align-content: start; justify-items: start; gap: 12px; padding: 22px; }
 .editorial-date { color: var(--muted); font-size: .75rem; font-weight: 700; }
+.editorial-category { display: inline-flex; width: fit-content; max-width: 100%; padding: 5px 9px; border-radius: 999px; color: #23623a; background: #edf7ef; font-size: .68rem; font-weight: 750; line-height: 1.35; }
 .editorial-card-content h2 { margin: 0; font-size: 1.22rem; }
 .editorial-card-content > p { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.65; }
 .editorial-card-content .button { margin-top: 5px; }
@@ -644,9 +657,9 @@ p { line-height: 1.75; }
 .donation-admin-notice > svg { flex: 0 0 auto; }
 .donation-admin-notice h2 { margin: 0 0 7px; color: #715500; font-size: 1.1rem; }
 .donation-admin-notice p { margin: 0; color: #6e654c; font-size: .86rem; line-height: 1.65; }
-:root[data-theme='dark'] .hero-visual-brand { background: radial-gradient(circle at 70% 30%, #203a31, transparent 34%), linear-gradient(135deg, #182a39, #172c24); }
 :root[data-theme='dark'] .donation-amount-fieldset legend,
 :root[data-theme='dark'] .donation-anonymous { color: #cbd6df; }
+:root[data-theme='dark'] .editorial-category { color: #bde6c8; background: #1c3328; }
 :root[data-theme='dark'] .donation-amount-option { border-color: #3a4b5b; color: #d8e7f2; background: #101a24; }
 :root[data-theme='dark'] .donation-amount-option.selected { border-color: #79d493; color: #bde6c8; background: #1c3328; }
 :root[data-theme='dark'] .donation-transparency { border-color: #345340; color: #c1e4cb; background: #1c3328; }
@@ -654,6 +667,9 @@ p { line-height: 1.75; }
 :root[data-theme='dark'] .donation-admin-notice h2,
 :root[data-theme='dark'] .donation-admin-notice p { color: #ead9ac; }
 :root[data-theme='dark'] .objective-detail-card { border-color: #30404f; background: #172431; }
+:root[data-theme='dark'] .about-mission-vision article,
+:root[data-theme='dark'] .home-content-preview { border-color: #30404f; background: #172431; }
+:root[data-theme='dark'] .about-mission-vision p { color: #b7c4d0; }
 :root[data-theme='dark'] .objective-detail-card p,
 :root[data-theme='dark'] .objectives-page-cta p { color: #b7c4d0; }
 :root[data-theme='dark'] .transparency-section { background: #142330; }
@@ -760,13 +776,14 @@ p { line-height: 1.75; }
   .hero-visual { position: relative; inset: auto; width: 100%; height: clamp(200px, 55vw, 310px); border-radius: 10px; }
   .hero-visual::before { display: none; }
   .hero-visual > img { object-position: 78% center; }
-    .hero-visual-brand > img { width: min(58%, 280px); height: auto; max-height: 85%; object-position: center; }
   .hero-visual-note { right: 11px; bottom: 11px; padding: 10px 12px; }
   .hero-scroll { display: none; }
   .intro-strip-inner { min-height: 70px; flex-wrap: wrap; justify-content: center; gap: 7px 18px; padding-block: 12px; }
   .intro-strip p { gap: 8px; font-size: .75rem; }
   .intro-location { display: none; }
   .about-grid, .network-layout { grid-template-columns: 1fr; gap: 39px; }
+  .home-content-columns { grid-template-columns: 1fr; }
+  .about-mission-vision { grid-template-columns: 1fr; }
   .about-mark { width: min(100%, 500px); margin: auto; }
   .about-logo-frame { height: clamp(245px, 66vw, 340px); }
   .purpose-inner { align-items: flex-start; }

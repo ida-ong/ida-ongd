@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import WhatsAppContact from '../components/WhatsAppContact'
+import heroImage from '../assets/hero.png'
 
 export default function SiteLayout() {
   const { pathname } = useLocation()
@@ -30,6 +31,22 @@ export default function SiteLayout() {
       document.head.append(descriptionTag)
     }
     descriptionTag.content = description
+
+    const meta = (property, content) => {
+      let tag = document.querySelector(`meta[property="${property}"]`)
+      if (!tag) {
+        tag = document.createElement('meta')
+        tag.setAttribute('property', property)
+        document.head.append(tag)
+      }
+      tag.content = content
+    }
+    meta('og:type', 'website')
+    meta('og:title', title)
+    meta('og:description', description)
+    meta('og:url', new URL(pathname, window.location.origin).href)
+    meta('og:image', new URL(heroImage, window.location.origin).href)
+    meta('og:locale', 'fr_FR')
   }, [pathname])
 
   return <><Navbar /><Outlet /><Footer /><WhatsAppContact /></>

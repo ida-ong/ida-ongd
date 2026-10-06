@@ -24,7 +24,7 @@ export default function Navbar() {
     <nav className="navbar container" aria-label="Navigation principale">
       <Link className="brand" to="/" onClick={() => setOpen(false)} aria-label="IDA, accueil">
         <img src={logo} alt="Logo IDA" />
-        <span><strong>IDA</strong><small>Initiative Dignité Autonomisation</small></span>
+        <span><strong>IDA</strong><small>Initiative Dignité et Autonomisation</small></span>
       </Link>
       <button className="menu-toggle" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}>{open ? <X size={23} /> : <Menu size={23} />}</button>
       <div className={`nav-panel${open ? ' nav-panel-open' : ''}`}>

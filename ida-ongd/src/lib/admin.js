@@ -42,7 +42,7 @@ export async function getAdminStats() {
   const activeCount = profiles.filter((profile) => profile.is_active !== false).length
   const neighborhoods = new Set(profiles.filter((profile) => profile.neighborhood_id).map((profile) => profile.neighborhood_id))
 
-  const eligibleMembers = profiles.filter((profile) => countNetworkSizeForMember(profile, profiles) >= 20)
+  const eligibleMembers = profiles.filter((profile) => String(profile.role ?? '').toLowerCase() === 'member' && countNetworkSizeForMember(profile, profiles) >= 20)
 
   return {
     totalMembers: memberCount,
@@ -81,7 +81,14 @@ export async function getAdminMembers() {
 
 export async function getEligibleMembers() {
   const members = await getAdminMembers()
-  return members.filter((member) => Number(member.network_count) >= 20)
+  return members.filter((member) => normalizeMemberRole(member.role) === 'member' && Number(member.network_count) >= 20)
+}
+
+function normalizeMemberRole(role) {
+  const value = String(role ?? '').trim().toLowerCase()
+  if (value === 'administrator') return 'admin'
+  if (value === 'fondateur') return 'founder'
+  return value || 'member'
 }
 
 export async function nominateMemberRole(targetId, nextRole) {

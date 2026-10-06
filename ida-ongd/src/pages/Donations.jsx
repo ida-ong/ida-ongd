@@ -26,7 +26,6 @@ const initialValues = {
   anonymous: false,
   firstName: '',
   lastName: '',
-  name: '',
   email: '',
   phone: '',
 }
@@ -76,7 +75,7 @@ export default function Donations() {
 
       <section className="donation-request-layout">
         <div className="donation-request-copy">
-          <span className="eyebrow">Paiement sécurisé — mise en place</span>
+          <span className="eyebrow">État actuel du paiement</span>
           <h2>Le paiement en ligne n’est pas encore activé</h2>
           <p>Aucun fournisseur de paiement ni mécanisme de confirmation n’est configuré dans ce projet. Le formulaire ci-contre prépare uniquement une demande de modalités via WhatsApp : il ne prélève, n’enregistre et ne confirme aucun don.</p>
           <p>Nous activerons le paiement après sélection et configuration d’un prestataire disponible en RDC et, si nécessaire, à l’international.</p>

@@ -1,6 +1,7 @@
 import { BookOpen, HeartHandshake, ShieldCheck } from 'lucide-react'
 import SectionTitle from '../components/SectionTitle'
 import Button from '../components/Button'
+import { objectives } from '../lib/objectives'
 import founderImage from '../assets/fondateur.jpg'
 import ClaudiaImage from '../assets/coofondatrice.jpg'
 import MarieImage from '../assets/coofondatrice2.jpg'
@@ -30,6 +31,18 @@ export default function About() {
           <p>IDA entend prévenir les violences, soutenir l’entrepreneuriat, l’inclusion et l’égalité des chances, et encourager la participation communautaire au développement durable. Les publications du site doivent distinguer les actions réalisées, les projets en cours et les objectifs futurs.</p>
           <p><strong>Créée le 26 septembre 2026.</strong></p>
         </div>
+
+        <section className="about-mission-vision" aria-label="Mission et vision">
+          <article><span className="eyebrow">Mission</span><h2>Protéger et accompagner</h2><p>Protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables.</p></article>
+          <article><span className="eyebrow">Vision</span><h2>Un avenir digne et durable</h2><p>Contribuer à des communautés où les enfants et les jeunes filles peuvent bénéficier de protection, d’éducation, d’accompagnement et de possibilités d’autonomie.</p></article>
+        </section>
+
+        <section className="about-interventions" aria-label="Objectifs et domaines d’intervention">
+          <SectionTitle eyebrow="Nos priorités" title="Objectifs et domaines d’intervention">
+            Des priorités qui associent protection, éducation, autonomisation et participation communautaire.
+          </SectionTitle>
+          <div className="domain-grid">{objectives.map(([title, , Icon]) => <article className="domain-card" key={title}><span><Icon size={21} /></span><h3>{title}</h3></article>)}</div>
+        </section>
 
         <div className="about-values">
           {values.map(([Icon, title, text]) => (
