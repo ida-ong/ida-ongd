@@ -200,3 +200,5 @@ before update on public.profiles
 for each row
 when (old.role is distinct from new.role or old.referred_by is distinct from new.referred_by or old.affiliate_code is distinct from new.affiliate_code or old.member_number is distinct from new.member_number)
 execute function public.guard_role_fields();
+
+notify pgrst, 'reload schema';

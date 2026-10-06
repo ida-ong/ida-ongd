@@ -222,3 +222,5 @@ create trigger ida_guard_member_managed_profile_fields
 before update of role, referred_by, affiliate_code, member_number, neighborhood_id
 on public.profiles
 for each row execute function public.guard_member_managed_profile_fields();
+
+notify pgrst, 'reload schema';
