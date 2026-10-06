@@ -5,6 +5,7 @@ import SiteLayout from './layouts/SiteLayout'
 import About from './pages/About'
 import Activities from './pages/Activities'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminDonations from './pages/AdminDonations'
 import AdminContentManager from './pages/AdminContentManager'
 import AdminEligible from './pages/AdminEligible'
 import AdminMembers from './pages/AdminMembers'
@@ -29,6 +30,7 @@ import LeaderReports from './pages/LeaderReports'
 import Login from './pages/Login'
 import News from './pages/News'
 import NewsDetail from './pages/NewsDetail'
+import Objectives from './pages/Objectives'
 import PublicActionDetail from './pages/PublicActionDetail'
 import Network from './pages/Network'
 import Register from './pages/Register'
@@ -42,6 +44,7 @@ function App() {
           <Route element={<SiteLayout />}>
             <Route index element={<Home />} />
             <Route path="/a-propos" element={<About />} />
+            <Route path="/objectifs" element={<Objectives />} />
             <Route path="/actions" element={<Activities />} />
             <Route path="/actions/:id" element={<PublicActionDetail />} />
             <Route path="/actualites" element={<News />} />
@@ -57,6 +60,7 @@ function App() {
             <Route path="/dashboard/reseau" element={<ProtectedRoute><Network /></ProtectedRoute>} />
             <Route path="/leader" element={<ProtectedRoute roles={['leader']}><LeaderDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute roles={['admin', 'founder']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/dons" element={<ProtectedRoute roles={['admin', 'founder']}><AdminDonations /></ProtectedRoute>} />
             <Route path="/admin/membres" element={<ProtectedRoute roles={['admin', 'founder']}><AdminMembers /></ProtectedRoute>} />
             <Route path="/admin/eligibles" element={<ProtectedRoute roles={['admin', 'founder']}><AdminEligible /></ProtectedRoute>} />
             <Route path="/admin/missions" element={<ProtectedRoute roles={['admin', 'founder']}><AdminMissions /></ProtectedRoute>} />

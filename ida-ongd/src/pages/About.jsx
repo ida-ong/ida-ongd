@@ -1,4 +1,4 @@
-import { HeartHandshake, ShieldCheck, UsersRound } from 'lucide-react'
+import { BookOpen, HeartHandshake, ShieldCheck } from 'lucide-react'
 import SectionTitle from '../components/SectionTitle'
 import Button from '../components/Button'
 import founderImage from '../assets/fondateur.jpg'
@@ -6,9 +6,9 @@ import ClaudiaImage from '../assets/coofondatrice.jpg'
 import MarieImage from '../assets/coofondatrice2.jpg'
 
 const values = [
-  [ShieldCheck, 'Protéger', 'Défendre la dignité et les droits des personnes vulnérables.'],
-  [UsersRound, 'Mobiliser', 'Faire de la participation communautaire un levier d’action.'],
-  [HeartHandshake, 'Autonomiser', 'Soutenir des capacités et des initiatives adaptées au contexte local.'],
+  [ShieldCheck, 'Protéger', 'Prévenir les violences et défendre la dignité et les droits des enfants.'],
+  [BookOpen, 'Éduquer', 'Favoriser l’éducation, la formation et l’inclusion comme leviers d’avenir.'],
+  [HeartHandshake, 'Autonomiser', 'Accompagner les jeunes filles et les communautés vers plus d’autonomie.'],
 ]
 
 const founders = [
@@ -22,12 +22,12 @@ export default function About() {
     <main className="page-section inner-page">
       <div className="container">
         <SectionTitle eyebrow="Notre organisation" title="À propos d’IDA">
-          Initiative Dignité Autonomisation — agir avec et pour les communautés.
+          Initiative Dignité et Autonomisation — protéger les enfants et autonomiser les jeunes filles.
         </SectionTitle>
         <div className="about-page-copy">
-          <p>IDA — Initiative Dignité Autonomisation est une organisation non gouvernementale de développement à vocation humanitaire qui œuvre pour contribuer à l’amélioration des conditions de vie des enfants, des jeunes et des femmes en situation de vulnérabilité.</p>
-          <p>L’organisation agit actuellement à Lubumbashi, en République démocratique du Congo, à travers des actions de protection, de sensibilisation, d’éducation, d’autonomisation et de mobilisation communautaire.</p>
-          <p>IDA encourage la participation active des communautés afin d’identifier les problèmes, développer des réponses adaptées et contribuer durablement au développement local.</p>
+          <p>ONGD IDA — Initiative Dignité et Autonomisation est une organisation non gouvernementale qui œuvre principalement pour protéger les enfants, autonomiser les jeunes filles et contribuer à construire un avenir digne et durable pour les communautés vulnérables.</p>
+          <p>À Lubumbashi, en République démocratique du Congo, ses domaines d’intervention comprennent la protection de l’enfant, l’éducation et le soutien scolaire, la formation professionnelle et numérique, l’accompagnement social et psychosocial ainsi que l’aide humanitaire selon les ressources disponibles.</p>
+          <p>IDA entend prévenir les violences, soutenir l’entrepreneuriat, l’inclusion et l’égalité des chances, et encourager la participation communautaire au développement durable. Les publications du site doivent distinguer les actions réalisées, les projets en cours et les objectifs futurs.</p>
           <p><strong>Créée le 26 septembre 2026.</strong></p>
         </div>
 
@@ -41,7 +41,7 @@ export default function About() {
           ))}
         </div>
 
-        <div className="about-cta"><Button to="/inscription">Rejoindre IDA</Button></div>
+        <div className="about-cta"><Button to="/objectifs" variant="outline">Nos objectifs</Button> <Button to="/dons">Faire un don</Button> <Button to="/inscription" variant="text">Rejoindre IDA</Button></div>
 
         <section className="about-founders" aria-label="Équipe fondatrice d’IDA">
           <SectionTitle eyebrow="Notre équipe" title="Les personnes fondatrices">

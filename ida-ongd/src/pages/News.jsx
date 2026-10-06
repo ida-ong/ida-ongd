@@ -18,7 +18,7 @@ export default function News() {
 
   return <main className="page-section inner-page">
     <div className="container">
-      <SectionTitle eyebrow="La vie de l’organisation" title="Actualités">Les nouvelles, initiatives et annonces de l’Initiative Dignité Autonomisation.</SectionTitle>
+      <SectionTitle eyebrow="La vie de l’organisation" title="Actualités">Les nouvelles et annonces de l’ONGD IDA autour de la protection de l’enfant, de l’éducation, des jeunes filles et du développement communautaire.</SectionTitle>
       {state.loading && <p className="content-state" role="status">Chargement des actualités…</p>}
       {state.error && <p className="form-notice notice-info" role="status">Les actualités ne sont pas disponibles pour le moment. Réessayez ultérieurement.</p>}
       {!state.loading && !state.error && state.items.length === 0 && <div className="coming-soon-card"><Newspaper size={36} /><h2>Les actualités arrivent bientôt</h2><p>Aucune publication n’est disponible pour le moment. Les actualités paraîtront ici dès leur publication par l’équipe IDA.</p></div>}

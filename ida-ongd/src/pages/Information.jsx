@@ -19,7 +19,7 @@ export default function Information() {
 
   return <main className="page-section inner-page">
     <div className="container">
-      <SectionTitle eyebrow="Annonces de l’organisation" title="Informations importantes">Les annonces et informations utiles communiquées par l’équipe IDA.</SectionTitle>
+      <SectionTitle eyebrow="Annonces de l’organisation" title="Informations importantes">Les annonces officielles et informations utiles communiquées par l’équipe de l’ONGD IDA.</SectionTitle>
       {state.loading && <p className="content-state" role="status">Chargement des informations…</p>}
       {state.error && <p className="form-notice notice-info" role="status">Les informations ne sont pas disponibles pour le moment. Réessayez ultérieurement.</p>}
       {!state.loading && !state.error && state.items.length === 0 && <div className="coming-soon-card"><BellRing size={34} /><h2>Aucune annonce pour le moment</h2><p>Les informations publiques paraîtront ici dès leur publication par l’équipe IDA.</p></div>}

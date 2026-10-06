@@ -17,7 +17,7 @@ export default function Activities() {
   }, [])
 
   return <main className="page-section inner-page"><div className="container">
-    <SectionTitle eyebrow="Agir ensemble" title="Nos actions">IDA agit autour de la protection, de l’éducation, de l’autonomisation et de la mobilisation communautaire à Lubumbashi.</SectionTitle>
+    <SectionTitle eyebrow="Agir ensemble" title="Nos actions">Nos actions s’inscrivent dans la protection de l’enfant, l’éducation, l’autonomisation des jeunes filles et le soutien aux communautés vulnérables. Chaque publication décrit les informations communiquées par IDA.</SectionTitle>
     {state.loading && <p className="content-state" role="status">Chargement des actions…</p>}
     {state.error && <p className="form-notice notice-info" role="status">Les actions ne sont pas disponibles pour le moment. Réessayez ultérieurement.</p>}
     {!state.loading && !state.error && state.items.length === 0 && <div className="coming-soon-card"><HeartHandshake size={36} /><h2>Activités en préparation</h2><p>Les actions publiques seront présentées ici au fur et à mesure de leur organisation. Pour participer à la mobilisation communautaire, vous pouvez rejoindre IDA.</p><Link className="button button-primary" to="/inscription">Devenir membre <ArrowRight size={16} /></Link></div>}

@@ -1,4 +1,4 @@
-import { Activity, ClipboardList, ShieldCheck, Users, Warehouse } from 'lucide-react'
+import { Activity, ClipboardList, HandHeart, ShieldCheck, Users, Warehouse } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/useAuth'
@@ -110,6 +110,15 @@ export default function AdminDashboard() {
             </div>
             <p className="muted-text">Consulter les rapports envoyés et suivre leur validation.</p>
             <Link to="/admin/rapports" className="button button-outline">Voir les rapports</Link>
+          </section>
+
+          <section className="admin-panel">
+            <div className="panel-header">
+              <div><span className="eyebrow">Soutien à la mission</span><h2>Gestion des dons</h2></div>
+              <HandHeart size={22} />
+            </div>
+            <p className="muted-text">Les statistiques et transactions resteront indisponibles jusqu’à la configuration d’un paiement réel et la vérification du schéma Supabase.</p>
+            <Link to="/admin/dons" className="button button-outline">État du registre des dons</Link>
           </section>
         </div>
       </div>
