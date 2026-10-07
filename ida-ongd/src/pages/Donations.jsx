@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, HandHeart, ShieldCheck } from 'lucide-react'
+import { ArrowRight, ExternalLink, HandHeart, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SectionTitle from '../components/SectionTitle'
 import { WHATSAPP_NUMBER } from '../lib/contact'
@@ -17,6 +17,7 @@ const objectives = [
   'Je laisse l’ONGD IDA utiliser mon don là où les besoins sont prioritaires',
 ]
 const suggestedAmounts = ['5', '10', '20', '50', '100']
+const FONDEKA_PAYMENT_URL = 'https://pay.fondeka.com/p/69DKZ7C9E'
 
 const initialValues = {
   objective: 'Don général',
@@ -75,10 +76,11 @@ export default function Donations() {
 
       <section className="donation-request-layout">
         <div className="donation-request-copy">
-          <span className="eyebrow">État actuel du paiement</span>
-          <h2>Le paiement en ligne n’est pas encore activé</h2>
-          <p>Aucun fournisseur de paiement ni mécanisme de confirmation n’est configuré dans ce projet. Le formulaire ci-contre prépare uniquement une demande de modalités via WhatsApp : il ne prélève, n’enregistre et ne confirme aucun don.</p>
-          <p>Nous activerons le paiement après sélection et configuration d’un prestataire disponible en RDC et, si nécessaire, à l’international.</p>
+          <span className="eyebrow">Paiement externe sécurisé</span>
+          <h2>Contribuer via Fondeka</h2>
+          <p>Le bouton ouvre la page de paiement hébergée par Fondeka. Vérifiez le bénéficiaire, le montant et les conditions affichées par la passerelle avant de confirmer. IDA ne reçoit pas de confirmation de paiement par ce site.</p>
+          <a className="button button-primary donation-gateway-button" href={FONDEKA_PAYMENT_URL} target="_blank" rel="noopener noreferrer">Payer via Fondeka <ExternalLink size={17} /></a>
+          <p>Vous pouvez aussi demander les modalités à l’équipe IDA par WhatsApp, sans effectuer de paiement.</p>
           <Link className="button button-outline" to="/contact">Contacter directement IDA <ArrowRight size={16} /></Link>
         </div>
 
@@ -101,7 +103,7 @@ export default function Donations() {
               {values.customAmount && <label className="form-field"><span>Montant personnalisé</span><input name="amount" type="number" min="1" step="any" inputMode="decimal" required placeholder="Saisir un montant" value={values.amount} onChange={update} /></label>}
               <label className="form-field"><span>Devise</span><select name="currency" value={values.currency} onChange={update}><option value="USD">USD — Dollar américain</option><option value="CDF">CDF — Franc congolais</option></select></label>
             </div>
-            <p className="donation-amount-note">Le montant et la devise sont indicatifs tant que le moyen de paiement n’est pas configuré.</p>
+            <p className="donation-amount-note">Le montant saisi ici est transmis dans votre demande WhatsApp. Le bouton Fondeka ouvre la passerelle externe et ce formulaire ne lui transmet pas automatiquement le montant ni l’objectif.</p>
           </fieldset>
 
           <label className="donation-anonymous"><input type="checkbox" name="anonymous" checked={values.anonymous} onChange={update} /><span>Je souhaite faire un don anonymement</span></label>

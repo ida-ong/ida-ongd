@@ -621,6 +621,36 @@ p { line-height: 1.75; }
 .important-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 16px; padding: 19px 20px; border: 1px solid var(--line); border-left: 4px solid #9eabb6; border-radius: 9px; background: var(--white); }
 .important-card.priority-important { border-left-color: #d9a726; }
 .important-card.priority-urgent { border-left-color: #c45454; }
+.information-media-image, .information-media-video { display: block; width: min(100%, 520px); max-height: 420px; margin-top: 14px; border-radius: 10px; object-fit: cover; }
+.information-media-video, .editorial-detail-video { width: 100%; max-height: min(70vh, 680px); margin: 22px 0; border-radius: 12px; background: #07111b; }
+.editorial-detail-video { display: block; }
+.donation-request-copy .donation-gateway-button { margin: 5px 0 15px; }
+.email-confirmation-page { display: grid; min-height: 70vh; place-items: center; }
+.email-confirmation-card { width: min(100%, 620px); padding: clamp(24px, 5vw, 48px); border: 1px solid var(--line); border-radius: 18px; background: var(--white); box-shadow: var(--shadow); text-align: center; }
+.email-confirmation-icon { display: grid; width: 64px; height: 64px; margin: 0 auto 18px; place-items: center; border-radius: 50%; color: var(--green); background: var(--pale); }
+.email-confirmation-card h1 { margin: 10px 0; font-size: clamp(1.8rem, 5vw, 2.5rem); }
+.email-confirmation-card p { color: var(--muted); line-height: 1.7; }
+.email-confirmation-tip { padding: 12px; border-radius: 8px; background: var(--pale); }
+.email-resend-form { display: grid; gap: 12px; justify-items: center; margin-top: 20px; }
+.email-resend-form .form-field { width: 100%; text-align: left; }
+.email-confirmation-back { display: inline-block; margin-top: 20px; color: var(--green); font-weight: 700; }
+.content-manager-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.content-manager-toolbar .form-notice { flex: 1 1 300px; margin: 0; }
+.media-upload-control { display: grid; gap: 10px; }
+.media-upload-control > input[type='file'] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.media-upload-control > .button { justify-self: start; }
+.media-upload-current { display: grid; justify-items: start; gap: 8px; }
+.media-upload-current img, .media-upload-current video { width: min(100%, 360px); max-height: 230px; border-radius: 8px; background: #07111b; object-fit: cover; }
+.dialog-backdrop { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); background: rgb(7 17 27 / 60%); backdrop-filter: blur(5px); animation: dialog-fade-in .16s ease-out; }
+.confirm-dialog { width: min(100%, 460px); max-height: min(90dvh, 620px); overflow: auto; padding: clamp(22px, 5vw, 32px); border: 1px solid var(--line); border-radius: 16px; color: var(--ink); background: var(--white); box-shadow: 0 24px 70px rgb(0 0 0 / 25%); animation: dialog-rise-in .2s ease-out; }
+.confirm-dialog-icon { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; color: #8c6413; background: #fff2cf; }
+.confirm-dialog-icon.is-danger { color: #9b3636; background: #fde7e7; }
+.confirm-dialog h2 { margin: 16px 0 8px; font-size: 1.2rem; }
+.confirm-dialog p { color: var(--muted); line-height: 1.6; overflow-wrap: anywhere; }
+.confirm-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.button-danger { color: white; background: #a83232; border-color: #a83232; }
+@keyframes dialog-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-rise-in { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .important-priority { display: inline-flex; min-height: 27px; align-items: center; padding: 5px 9px; border-radius: 30px; color: #536b80; background: var(--pale); font-size: .68rem; font-weight: 800; white-space: nowrap; }
 .priority-important .important-priority { color: #735500; background: #fff5d9; }
 .priority-urgent .important-priority { color: #883232; background: #fff0ef; }
@@ -690,6 +720,8 @@ p { line-height: 1.75; }
 :root[data-theme='dark'] .girls-engagement-section { background: #172431; }
 :root[data-theme='dark'] .inner-page .girls-engagement-section { background: transparent; }
 :root[data-theme='dark'] .about-mission-vision p { color: #b7c4d0; }
+:root[data-theme='dark'] .email-confirmation-card, :root[data-theme='dark'] .confirm-dialog { border-color: #30404f; background: #172431; }
+:root[data-theme='dark'] .email-confirmation-tip { background: #203a31; }
 :root[data-theme='dark'] .objective-detail-card p,
 :root[data-theme='dark'] .objectives-page-cta p { color: #b7c4d0; }
 :root[data-theme='dark'] .transparency-section { background: #142330; }
@@ -910,6 +942,14 @@ p { line-height: 1.75; }
   .important-card { grid-template-columns: 1fr; gap: 9px; padding: 16px; }
   .important-card time { grid-row: 1; }
   .donation-intro { padding: 17px; }
+  .donation-request-copy { position: static; }
+  .donation-request-copy .button { width: 100%; }
+  .email-confirmation-card { padding: 24px 18px; }
+  .content-manager-toolbar { align-items: stretch; flex-direction: column; }
+  .content-manager-toolbar > .button { width: 100%; }
+  .confirm-dialog { align-self: end; width: 100%; margin-bottom: env(safe-area-inset-bottom); border-radius: 18px 18px 10px 10px; }
+  .confirm-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .confirm-dialog-actions .button { width: 100%; }
   .editorial-card-content { padding: 18px; }
   .content-admin-heading { flex-direction: column; }
   .content-admin-actions .button { flex: 1 1 auto; }

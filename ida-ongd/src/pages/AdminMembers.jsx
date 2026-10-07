@@ -5,6 +5,7 @@ import RoleBadge from '../components/RoleBadge'
 import { getAdminMembers, nominateMemberRole } from '../lib/admin'
 import { useAuth } from '../auth/useAuth'
 import { normalizeRole } from '../lib/roles'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 export default function AdminMembers() {
   useAuth()
@@ -14,6 +15,7 @@ export default function AdminMembers() {
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [pendingRoleChange, setPendingRoleChange] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -44,8 +46,6 @@ export default function AdminMembers() {
   }), [members, neighborhoodFilter, roleFilter, search])
 
   async function handleLeaderNomination(memberId, nextRole) {
-    const ok = window.confirm('Confirmez-vous ce changement de rôle ?')
-    if (!ok) return
     try {
       await nominateMemberRole(memberId, nextRole)
       const refreshed = await getAdminMembers()
@@ -125,9 +125,9 @@ export default function AdminMembers() {
                   <td>{member.created_at ? new Date(member.created_at).toLocaleDateString('fr-FR') : '—'}</td>
                   <td>
                     {normalizeRole(member.role) === 'leader' ? (
-                      <button className="button button-outline small-button" type="button" onClick={() => handleLeaderNomination(member.id, 'member')}>Retirer le rôle</button>
+                      <button className="button button-outline small-button" type="button" onClick={() => setPendingRoleChange({ member, role: 'member' })}>Retirer le rôle</button>
                     ) : normalizeRole(member.role) === 'member' && Number(member.network_count) >= 20 ? (
-                      <button className="button button-primary small-button" type="button" onClick={() => handleLeaderNomination(member.id, 'leader')}>Nommer leader</button>
+                      <button className="button button-primary small-button" type="button" onClick={() => setPendingRoleChange({ member, role: 'leader' })}>Nommer leader</button>
                     ) : normalizeRole(member.role) === 'member' ? <span>{member.network_count ?? 0}/20 personnes</span> : <span>—</span>}
                   </td>
                 </tr>
@@ -135,6 +135,7 @@ export default function AdminMembers() {
             </tbody>
           </table>
         </div>
+        <ConfirmDialog open={Boolean(pendingRoleChange)} title={pendingRoleChange?.role === 'leader' ? 'Nommer ce leader ?' : 'Retirer le rôle leader ?'} message={pendingRoleChange ? `${[pendingRoleChange.member.first_name, pendingRoleChange.member.last_name].filter(Boolean).join(' ')} — ${pendingRoleChange.role === 'leader' ? 'la nomination sera vérifiée par Supabase' : 'le profil redeviendra membre'}.` : ''} confirmLabel={pendingRoleChange?.role === 'leader' ? 'Nommer leader' : 'Retirer le rôle'} danger={pendingRoleChange?.role === 'member'} onCancel={() => setPendingRoleChange(null)} onConfirm={async () => { const pending = pendingRoleChange; setPendingRoleChange(null); if (pending) await handleLeaderNomination(pending.member.id, pending.role) }} />
       </div>
     </main>
   )

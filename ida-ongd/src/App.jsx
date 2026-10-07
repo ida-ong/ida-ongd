@@ -15,6 +15,7 @@ import AdminReports from './pages/AdminReports'
 import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
 import Donations from './pages/Donations'
+import EmailConfirmation from './pages/EmailConfirmation'
 import DomainDetail from './pages/DomainDetail'
 import ForgotPassword from './pages/ForgotPassword'
 import FounderAdministrators from './pages/FounderAdministrators'
@@ -55,6 +56,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/dons" element={<Donations />} />
             <Route path="/inscription" element={<Register />} />
+            <Route path="/confirmation-email" element={<EmailConfirmation />} />
             <Route path="/connexion" element={<Login />} />
             <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
             <Route path="/rejoindre/:affiliateCode" element={<Referral />} />

@@ -7,9 +7,9 @@ const tables = {
 }
 
 const writableColumns = {
-  news: ['title', 'slug', 'summary', 'content', 'image_url', 'category', 'status'],
-  actions: ['title', 'description', 'objective', 'location', 'date_action', 'image_url', 'status'],
-  information: ['title', 'content', 'priority', 'status'],
+  news: ['title', 'slug', 'summary', 'content', 'image_url', 'video_url', 'category', 'status'],
+  actions: ['title', 'description', 'objective', 'location', 'date_action', 'image_url', 'video_url', 'status'],
+  information: ['title', 'content', 'image_url', 'video_url', 'priority', 'status'],
 }
 
 const priorityToDatabase = { normal: 1, important: 2, urgent: 3 }
@@ -20,7 +20,7 @@ function normalizeInformationPriority(value) {
 }
 
 let informationStatusColumnAvailable = true
-const newsOptionalColumnsAvailable = { category: false, image_url: false }
+const newsOptionalColumnsAvailable = { category: false, image_url: false, video_url: false }
 
 function isMissingStatusColumn(error) {
   const message = String(error?.message ?? '').toLowerCase()
@@ -37,6 +37,10 @@ export function supportsNewsCategories() {
 
 export function supportsNewsImages() {
   return newsOptionalColumnsAvailable.image_url
+}
+
+export function supportsNewsVideos() {
+  return newsOptionalColumnsAvailable.video_url
 }
 
 function tableFor(type) {
@@ -103,7 +107,7 @@ export async function getAdminContent(type) {
       informationStatusColumnAvailable = true
     }
   } else if (type === 'news') {
-    const optionalColumns = ['category', 'image_url']
+    const optionalColumns = ['category', 'image_url', 'video_url']
     while (true) {
       const extras = optionalColumns.join(', ')
       result = await makeQuery(extras ? `*, ${extras}` : '*')
@@ -118,6 +122,7 @@ export async function getAdminContent(type) {
     }
     newsOptionalColumnsAvailable.category = optionalColumns.includes('category')
     newsOptionalColumnsAvailable.image_url = optionalColumns.includes('image_url')
+    newsOptionalColumnsAvailable.video_url = optionalColumns.includes('video_url')
   } else {
     result = await makeQuery('*')
   }
@@ -149,6 +154,7 @@ export async function saveAdminContent(type, values, userId) {
   if (type === 'news') {
     if (!newsOptionalColumnsAvailable.category) delete normalizedFields.category
     if (!newsOptionalColumnsAvailable.image_url) delete normalizedFields.image_url
+    if (!newsOptionalColumnsAvailable.video_url) delete normalizedFields.video_url
   }
   const payload = type === 'news'
     ? { ...normalizedFields, excerpt: normalizedFields.summary }

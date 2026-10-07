@@ -23,7 +23,7 @@ export default function Information() {
       {state.loading && <p className="content-state" role="status">Chargement des informations…</p>}
       {state.error && <p className="form-notice notice-info" role="status">Les informations ne sont pas disponibles pour le moment. Réessayez ultérieurement.</p>}
       {!state.loading && !state.error && state.items.length === 0 && <div className="coming-soon-card"><BellRing size={34} /><h2>Aucune annonce pour le moment</h2><p>Les informations publiques paraîtront ici dès leur publication par l’équipe IDA.</p></div>}
-      {state.items.length > 0 && <div className="important-list important-list-page">{state.items.map((item) => <article className={`important-card priority-${item.priority}`} key={item.id}><span className="important-priority">{priorityLabels[item.priority] || priorityLabels.normal}</span><div><h2>{item.title}</h2><p>{item.content}</p></div><time dateTime={item.published_at}>{formatJoinDate(item.published_at)}</time></article>)}</div>}
+      {state.items.length > 0 && <div className="important-list important-list-page">{state.items.map((item) => <article className={`important-card priority-${item.priority}`} key={item.id}><span className="important-priority">{priorityLabels[item.priority] || priorityLabels.normal}</span><div><h2>{item.title}</h2><p>{item.content}</p>{item.image_url && <img className="information-media-image" src={item.image_url} alt="" loading="lazy" />}{item.video_url && <video className="editorial-detail-video" src={item.video_url} controls preload="metadata" />}</div><time dateTime={item.published_at}>{formatJoinDate(item.published_at)}</time></article>)}</div>}
     </div>
   </main>
 }

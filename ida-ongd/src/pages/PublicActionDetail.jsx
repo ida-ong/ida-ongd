@@ -25,6 +25,7 @@ export default function PublicActionDetail() {
       <Link className="network-back-link" to="/actions"><ArrowLeft size={17} /> Toutes les actions</Link>
       <header className="editorial-detail-header"><span className="eyebrow">Action communautaire IDA</span><h1>{action.title}</h1>{action.date_action && <time className="editorial-date" dateTime={action.date_action}>{formatJoinDate(action.date_action)}</time>}</header>
       {action.image_url && <img className="editorial-detail-image" src={action.image_url} alt="" onError={(event) => { event.currentTarget.hidden = true }} />}
+      {action.video_url && <video className="editorial-detail-video" src={action.video_url} controls preload="metadata" />}
       <section className="action-detail-summary"><h2>Objectif</h2><p>{action.objective}</p>{action.location && <p><strong>Lieu :</strong> {action.location}</p>}</section>
       <div className="editorial-body">{action.description}</div>
     </article>

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckCircle2 } from 'lucide-react'
 import { getEligibleMembers, nominateMemberRole } from '../lib/admin'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 export default function AdminEligible() {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [pendingMember, setPendingMember] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -26,8 +28,6 @@ export default function AdminEligible() {
   }, [])
 
   async function nominateLeader(memberId) {
-    const ok = window.confirm('Nommer ce membre comme leader communautaire ?')
-    if (!ok) return
     try {
       await nominateMemberRole(memberId, 'leader')
       setMessage('Le membre a bien été nommé leader.')
@@ -78,7 +78,7 @@ export default function AdminEligible() {
                   <td>{member.created_at ? new Date(member.created_at).toLocaleDateString('fr-FR') : '—'}</td>
                   <td><span className="status-pill status-ready">Éligible</span></td>
                   <td>
-                    <button type="button" className="button button-primary small-button" onClick={() => nominateLeader(member.id)}>
+                    <button type="button" className="button button-primary small-button" onClick={() => setPendingMember(member)}>
                       <CheckCircle2 size={15} /> Nommer leader
                     </button>
                   </td>
@@ -87,6 +87,7 @@ export default function AdminEligible() {
             </tbody>
           </table>
         </div>
+        <ConfirmDialog open={Boolean(pendingMember)} title="Nommer ce leader ?" message={pendingMember ? `${[pendingMember.first_name, pendingMember.last_name].filter(Boolean).join(' ')} sera nommé responsable communautaire. Supabase vérifiera aussi le seuil d’éligibilité.` : ''} confirmLabel="Nommer leader" onCancel={() => setPendingMember(null)} onConfirm={async () => { const member = pendingMember; setPendingMember(null); if (member) await nominateLeader(member.id) }} />
       </div>
     </main>
   )

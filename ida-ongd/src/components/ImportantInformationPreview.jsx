@@ -25,7 +25,7 @@ export default function ImportantInformationPreview() {
       {!state.loading && !state.error && state.items.length === 0 && <p className="content-state">Aucune information importante n’a été publiée récemment.</p>}
       {state.items.length > 0 && <div className="important-list">{state.items.map((item) => <article className={`important-card priority-${item.priority}`} key={item.id}>
         <span className="important-priority">{priorityLabels[item.priority] || priorityLabels.normal}</span>
-        <div><h3>{item.title}</h3><p>{item.content}</p></div>
+        <div><h3>{item.title}</h3><p>{item.content}</p>{item.image_url && <img className="information-media-image" src={item.image_url} alt="" loading="lazy" />}{item.video_url && <video className="information-media-video" src={item.video_url} controls preload="metadata" />}</div>
         <time dateTime={item.published_at}>{formatJoinDate(item.published_at)}</time>
       </article>)}</div>}
     </div>

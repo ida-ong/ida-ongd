@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { CheckCircle2 } from 'lucide-react'
 import AuthFormShell from '../components/AuthFormShell'
 import FormField from '../components/FormField'
@@ -25,6 +25,7 @@ function validate(values, neighborhoods) {
 
 export default function Register() {
   const { markRegistrationPending, clearRegistrationPending } = useAuth()
+  const navigate = useNavigate()
   const [values, setValues] = useState(initialValues)
   const [errors, setErrors] = useState({})
   const [neighborhoods, setNeighborhoods] = useState([])
@@ -100,11 +101,14 @@ export default function Register() {
       clearReferralCode()
       setReferralCode('')
       const confirmationRequired = !data.session
-      if (confirmationRequired) markRegistrationPending()
-      else clearRegistrationPending()
-      setStatus({ type: 'success', message: confirmationRequired
-        ? 'Votre demande d’inscription a bien été envoyée. Vérifiez votre email pour confirmer votre compte. Votre rattachement communautaire sera enregistré par IDA.'
-        : 'Votre compte a été créé. Votre rattachement communautaire est en cours de préparation.' })
+      if (confirmationRequired) {
+        markRegistrationPending()
+        try { window.sessionStorage.setItem('ida-confirmation-email', values.email.trim()) } catch { /* Navigation state still carries the address. */ }
+        navigate('/confirmation-email', { replace: true, state: { email: values.email.trim() } })
+      } else {
+        clearRegistrationPending()
+        setStatus({ type: 'success', message: 'Votre compte a été créé. Votre rattachement communautaire est en cours de préparation.' })
+      }
       setValues(initialValues)
     } catch (error) {
       setStatus({ type: 'error', message: friendlyAuthError(error) })

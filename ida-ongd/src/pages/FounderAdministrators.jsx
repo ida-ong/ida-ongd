@@ -4,12 +4,14 @@ import { ShieldCheck } from 'lucide-react'
 import { getAdminMembers, nominateMemberRole, roleMutationErrorMessage } from '../lib/admin'
 import RoleBadge from '../components/RoleBadge'
 import { normalizeRole } from '../lib/roles'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 export default function FounderAdministrators() {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
   const [busyMemberId, setBusyMemberId] = useState('')
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [pendingRoleChange, setPendingRoleChange] = useState(null)
 
   useEffect(() => {
     let active = true
@@ -31,8 +33,6 @@ export default function FounderAdministrators() {
 
   async function updateRole(memberId, nextRole) {
     if (busyMemberId) return
-    const ok = window.confirm('Confirmez-vous ce changement de rôle ?')
-    if (!ok) return
     setBusyMemberId(memberId)
     setMessage({ type: '', text: '' })
     try {
@@ -84,7 +84,7 @@ export default function FounderAdministrators() {
                 </div>
                 <div className="row-actions">
                   <RoleBadge role={member.role} />
-                  <button className="button button-outline small-button" type="button" disabled={Boolean(busyMemberId)} onClick={() => updateRole(member.id, 'member')}>{busyMemberId === member.id ? 'Mise à jour…' : 'Retirer le rôle'}</button>
+                  <button className="button button-outline small-button" type="button" disabled={Boolean(busyMemberId)} onClick={() => setPendingRoleChange({ member, role: 'member' })}>{busyMemberId === member.id ? 'Mise à jour…' : 'Retirer le rôle'}</button>
                 </div>
               </div>
             ))}</div>}
@@ -104,11 +104,12 @@ export default function FounderAdministrators() {
                   <strong>{[member.first_name, member.last_name].filter(Boolean).join(' ') || '—'}</strong>
                   <small>{member.email || '—'}</small>
                 </div>
-                <button className="button button-primary small-button" type="button" disabled={Boolean(busyMemberId)} onClick={() => updateRole(member.id, 'admin')}>{busyMemberId === member.id ? 'Mise à jour…' : 'Nommer administrateur'}</button>
+                <button className="button button-primary small-button" type="button" disabled={Boolean(busyMemberId)} onClick={() => setPendingRoleChange({ member, role: 'admin' })}>{busyMemberId === member.id ? 'Mise à jour…' : 'Nommer administrateur'}</button>
               </div>
             ))}</div>}
           </section>
         </div>
+        <ConfirmDialog open={Boolean(pendingRoleChange)} title={pendingRoleChange?.role === 'admin' ? 'Nommer administrateur ?' : 'Retirer le rôle administrateur ?'} message={pendingRoleChange ? `${[pendingRoleChange.member.first_name, pendingRoleChange.member.last_name].filter(Boolean).join(' ')} sera ${pendingRoleChange.role === 'admin' ? 'nommé administrateur' : 'rétabli au rôle membre'}. Cette modification sera enregistrée dans le journal d’administration.` : ''} confirmLabel={pendingRoleChange?.role === 'admin' ? 'Nommer administrateur' : 'Retirer le rôle'} danger={pendingRoleChange?.role === 'member'} onCancel={() => setPendingRoleChange(null)} onConfirm={async () => { const pending = pendingRoleChange; setPendingRoleChange(null); if (pending) await updateRole(pending.member.id, pending.role) }} />
       </div>
     </main>
   )

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Archive, Edit3, FilePlus2, Send, Trash2 } from 'lucide-react'
+import { Archive, Bell, Edit3, FilePlus2, ImagePlus, Send, Trash2, Video } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { formatJoinDate } from '../lib/date'
-import { createSlug, deleteAdminContent, getAdminContent, saveAdminContent, supportsInformationArchive, supportsNewsCategories, supportsNewsImages } from '../lib/content'
+import { createSlug, deleteAdminContent, getAdminContent, saveAdminContent, supportsInformationArchive, supportsNewsCategories, supportsNewsImages, supportsNewsVideos } from '../lib/content'
+import { uploadEditorialMedia } from '../lib/editorialMedia'
+import ConfirmDialog from '../components/ConfirmDialog'
 
 const configs = {
   news: {
@@ -28,7 +30,8 @@ const configs = {
         ['Développement communautaire', 'Développement communautaire, égalité et inclusion'],
       ] },
       { name: 'content', label: 'Contenu complet', type: 'textarea', required: true, rows: 8 },
-      { name: 'image_url', label: 'URL de l’image (facultative)', type: 'url', help: 'Aucun stockage d’image n’est configuré pour le moment.' },
+      { name: 'image_url', label: 'Image de couverture', type: 'media', mediaKind: 'image', help: 'JPG, PNG, WebP ou GIF · 8 Mo maximum.' },
+      { name: 'video_url', label: 'Vidéo (facultative)', type: 'media', mediaKind: 'video', help: 'MP4, WebM ou MOV · 50 Mo maximum.' },
       { name: 'status', label: 'Statut', type: 'select', required: true, options: [['draft', 'Brouillon'], ['published', 'Publié'], ['archived', 'Archivé']] },
     ],
     description: (item) => item.summary,
@@ -54,7 +57,8 @@ const configs = {
       ] },
       { name: 'location', label: 'Lieu', help: 'Facultatif' },
       { name: 'date_action', label: 'Date de l’action', type: 'date', help: 'Facultatif' },
-      { name: 'image_url', label: 'URL de l’image (facultative)', type: 'url', help: 'Aucun stockage d’image n’est configuré pour le moment.' },
+      { name: 'image_url', label: 'Image de couverture', type: 'media', mediaKind: 'image', help: 'JPG, PNG, WebP ou GIF · 8 Mo maximum.' },
+      { name: 'video_url', label: 'Vidéo (facultative)', type: 'media', mediaKind: 'video', help: 'MP4, WebM ou MOV · 50 Mo maximum.' },
       { name: 'status', label: 'Statut', type: 'select', required: true, options: [['draft', 'Brouillon'], ['published', 'Publié'], ['archived', 'Archivé']] },
     ],
     description: (item) => item.objective,
@@ -66,6 +70,8 @@ const configs = {
     fields: [
       { name: 'title', label: 'Titre', required: true },
       { name: 'content', label: 'Information', type: 'textarea', required: true, rows: 6 },
+      { name: 'image_url', label: 'Image (facultative)', type: 'media', mediaKind: 'image', help: 'JPG, PNG, WebP ou GIF · 8 Mo maximum.' },
+      { name: 'video_url', label: 'Vidéo (facultative)', type: 'media', mediaKind: 'video', help: 'MP4, WebM ou MOV · 50 Mo maximum.' },
       { name: 'priority', label: 'Priorité', type: 'select', required: true, options: [['normal', 'Normale'], ['important', 'Importante'], ['urgent', 'Urgente']] },
       { name: 'status', label: 'Statut', type: 'select', required: true, options: [['draft', 'Brouillon'], ['published', 'Publié'], ['archived', 'Archivé']] },
     ],
@@ -143,7 +149,11 @@ export default function AdminContentManager({ type }) {
   const [canArchive, setCanArchive] = useState(type !== 'information')
   const [canCategorizeNews, setCanCategorizeNews] = useState(type !== 'news')
   const [canUseNewsImages, setCanUseNewsImages] = useState(type !== 'news')
+  const [canUseNewsVideos, setCanUseNewsVideos] = useState(type !== 'news')
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [uploading, setUploading] = useState('')
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted')
+  const [pendingDelete, setPendingDelete] = useState(null)
 
   const backPath = '/admin'
 
@@ -153,6 +163,7 @@ export default function AdminContentManager({ type }) {
     if (type === 'information') setCanArchive(supportsInformationArchive())
     if (type === 'news') setCanCategorizeNews(supportsNewsCategories())
     if (type === 'news') setCanUseNewsImages(supportsNewsImages())
+    if (type === 'news') setCanUseNewsVideos(supportsNewsVideos())
   }
 
   useEffect(() => {
@@ -164,6 +175,7 @@ export default function AdminContentManager({ type }) {
         if (type === 'information') setCanArchive(supportsInformationArchive())
         if (type === 'news') setCanCategorizeNews(supportsNewsCategories())
         if (type === 'news') setCanUseNewsImages(supportsNewsImages())
+        if (type === 'news') setCanUseNewsVideos(supportsNewsVideos())
       })
       .catch((error) => { if (active) setMessage({ type: 'error', text: contentErrorMessage(error, type) }) })
       .finally(() => { if (active) setLoading(false) })
@@ -188,6 +200,35 @@ export default function AdminContentManager({ type }) {
     setMessage({ type: '', text: '' })
   }
 
+  async function uploadMedia(event, field) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setUploading(field.name)
+    setMessage({ type: 'info', text: `Téléversement de ${field.mediaKind === 'image' ? 'l’image' : 'la vidéo'}…` })
+    try {
+      const url = await uploadEditorialMedia(file, type, field.mediaKind)
+      setValues((current) => ({ ...current, [field.name]: url }))
+      setMessage({ type: 'success', text: `${field.mediaKind === 'image' ? 'Image' : 'Vidéo'} téléversée. Enregistrez la publication pour l’associer au contenu.` })
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message || 'Le média n’a pas pu être téléversé. Vérifiez la migration Storage et les droits administrateur.' })
+    } finally {
+      setUploading('')
+      event.target.value = ''
+    }
+  }
+
+  async function enableNotifications() {
+    if (typeof Notification === 'undefined') {
+      setMessage({ type: 'error', text: 'Les notifications du navigateur ne sont pas prises en charge par ce navigateur.' })
+      return
+    }
+    const permission = await Notification.requestPermission()
+    setNotificationsEnabled(permission === 'granted')
+    setMessage(permission === 'granted'
+      ? { type: 'success', text: 'Notifications de publication activées sur cet appareil.' }
+      : { type: 'info', text: 'Autorisez les notifications du site dans les réglages du navigateur pour les activer.' })
+  }
+
   function startEdit(item) {
     setValues(Object.fromEntries(config.fields.map((field) => [field.name, item[field.name] ?? '']).concat([['id', item.id]])))
     setEditing(true)
@@ -210,7 +251,9 @@ export default function AdminContentManager({ type }) {
       await saveAdminContent(type, values, user.id)
       await loadItems()
       resetForm()
-      setMessage({ type: 'success', text: editing ? 'Le contenu a été mis à jour.' : 'Le contenu a été enregistré.' })
+      const successText = editing ? 'Le contenu a été mis à jour.' : 'Le contenu a été enregistré.'
+      setMessage({ type: 'success', text: successText })
+      if (notificationsEnabled && typeof Notification !== 'undefined') new Notification('Publication IDA enregistrée', { body: successText })
     } catch (error) {
       setMessage({ type: 'error', text: contentErrorMessage(error, type) })
     } finally {
@@ -230,7 +273,6 @@ export default function AdminContentManager({ type }) {
   }
 
   async function removeItem(item) {
-    if (!window.confirm(`Supprimer définitivement « ${item.title} » ?`)) return
     try {
       await deleteAdminContent(type, item.id)
       setItems((current) => current.filter((entry) => entry.id !== item.id))
@@ -238,6 +280,8 @@ export default function AdminContentManager({ type }) {
       setMessage({ type: 'success', text: 'Le contenu a été supprimé.' })
     } catch (error) {
       setMessage({ type: 'error', text: contentErrorMessage(error, type) })
+    } finally {
+      setPendingDelete(null)
     }
   }
 
@@ -245,22 +289,25 @@ export default function AdminContentManager({ type }) {
 
   return <main className="page-section dashboard-page"><div className="container">
     <div className="dashboard-heading"><div><span className="eyebrow">{config.eyebrow}</span><h1>{config.title}</h1><p>Les visiteurs ne voient que les contenus publiés.</p></div><Link to={backPath} className="button button-outline">Retour à l’administration</Link></div>
-    {message.text && <div className={`form-notice notice-${message.type === 'error' ? 'error' : message.type === 'success' ? 'success' : 'info'}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text}</div>}
+    <div className="content-manager-toolbar"><p className={`form-notice notice-${message.type === 'error' ? 'error' : message.type === 'success' ? 'success' : 'info'}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text || 'Les médias téléversés sont associés à la publication après son enregistrement.'}</p><button className="button button-outline small-button" type="button" onClick={enableNotifications} disabled={notificationsEnabled}><Bell size={15} />{notificationsEnabled ? 'Notifications activées' : 'Activer les notifications'}</button></div>
     {type === 'information' && !canArchive && <p className="form-notice notice-info" role="status">Le schéma Supabase actuel utilise « is_active » sans colonne « status ». La publication et la dépublication restent compatibles ; l’archivage distinct sera disponible après application de la migration Phase 7.</p>}
     {type === 'news' && !canCategorizeNews && <p className="form-notice notice-info" role="status">La colonne `category` est absente du schéma Supabase actuel. Les actualités restent créables et modifiables sans catégorie ; appliquez la migration Phase 7 pour activer ce champ.</p>}
     {type === 'news' && !canUseNewsImages && <p className="form-notice notice-info" role="status">La colonne `image_url` est absente du schéma Supabase actuel. Les actualités restent créables et modifiables sans image ; appliquez la migration Phase 7 pour activer ce champ.</p>}
+    {type === 'news' && !canUseNewsVideos && <p className="form-notice notice-info" role="status">La colonne video_url est absente du schéma. Appliquez la migration médias pour joindre des vidéos aux actualités.</p>}
     <div className="admin-layout content-manager-layout">
       <section className="admin-panel admin-content-form" id="content-form"><div className="panel-header"><div><span className="eyebrow">{editing ? 'Modification' : 'Nouvelle publication'}</span><h2>{editing ? 'Modifier le contenu' : 'Créer un contenu'}</h2></div><FilePlus2 size={22} /></div>
         <form className="phase5-form" onSubmit={submit}>
-          {config.fields.filter((field) => !(type === 'news' && field.name === 'category' && !canCategorizeNews) && !(type === 'news' && field.name === 'image_url' && !canUseNewsImages)).map((field) => <label className="content-field" key={field.name}>{field.label}
-            {field.type === 'textarea'
+          {config.fields.filter((field) => !(type === 'news' && field.name === 'category' && !canCategorizeNews) && !(type === 'news' && field.name === 'image_url' && !canUseNewsImages) && !(type === 'news' && field.name === 'video_url' && !canUseNewsVideos)).map((field) => <label className="content-field" key={field.name}>{field.label}
+            {field.type === 'media'
+              ? <span className="media-upload-control"><input type="file" accept={field.mediaKind === 'image' ? 'image/jpeg,image/png,image/webp,image/gif' : 'video/mp4,video/webm,video/quicktime'} onChange={(event) => void uploadMedia(event, field)} disabled={Boolean(uploading)} /><span className="button button-outline small-button">{uploading === field.name ? 'Téléversement…' : field.mediaKind === 'image' ? <><ImagePlus size={15} /> Choisir une image</> : <><Video size={15} /> Choisir une vidéo</>}</span>{values[field.name] && <span className="media-upload-current">{field.mediaKind === 'image' ? <img src={values[field.name]} alt="Aperçu du média" /> : <video src={values[field.name]} controls preload="metadata" />}<button type="button" className="button button-outline small-button" onClick={(event) => { event.preventDefault(); setValues((current) => ({ ...current, [field.name]: '' })) }}>Retirer</button></span>}</span>
+              : field.type === 'textarea'
               ? <textarea required={field.required} rows={field.rows || 4} name={field.name} value={values[field.name] ?? ''} onChange={update} />
               : field.type === 'select'
                 ? <select required={field.required} name={field.name} value={values[field.name] ?? ''} onChange={update}>{field.options.filter(([value]) => field.name !== 'status' || type !== 'information' || canArchive || value !== 'archived').map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
                 : <input required={field.required} type={field.type || 'text'} name={field.name} value={values[field.name] ?? ''} onChange={field.name === 'title' ? updateTitle : update} />}
             {field.help && <small>{field.help}</small>}
           </label>)}
-          <div className="panel-actions"><button className="button button-primary" type="submit" disabled={saving || loading}>{saving ? 'Enregistrement…' : editing ? 'Enregistrer les changements' : 'Enregistrer'}</button>{editing && <button className="button button-outline" type="button" onClick={resetForm}>Annuler</button>}</div>
+          <div className="panel-actions"><button className="button button-primary" type="submit" disabled={saving || loading || Boolean(uploading)}>{saving ? 'Enregistrement…' : editing ? 'Enregistrer les changements' : 'Enregistrer'}</button>{editing && <button className="button button-outline" type="button" onClick={resetForm}>Annuler</button>}</div>
         </form>
       </section>
       <section className="admin-panel"><div className="panel-header"><div><span className="eyebrow">Bibliothèque IDA</span><h2>Contenus existants</h2></div><Archive size={22} /></div>
@@ -271,10 +318,11 @@ export default function AdminContentManager({ type }) {
             {item.status !== 'published' && <button className="button button-primary small-button" type="button" onClick={() => changeStatus(item, 'published')}><Send size={14} /> Publier</button>}
             {item.status === 'published' && <button className="button button-outline small-button" type="button" onClick={() => changeStatus(item, 'draft')}>Remettre en brouillon</button>}
             {canArchive && item.status !== 'archived' && <button className="button button-outline small-button" type="button" onClick={() => changeStatus(item, 'archived')}><Archive size={14} /> Archiver</button>}
-            <button className="button button-outline small-button content-delete" type="button" onClick={() => removeItem(item)}><Trash2 size={14} /> Supprimer</button>
+            <button className="button button-outline small-button content-delete" type="button" onClick={() => setPendingDelete(item)}><Trash2 size={14} /> Supprimer</button>
           </div>
         </article>)}</div>}
       </section>
     </div>
+    <ConfirmDialog open={Boolean(pendingDelete)} title="Supprimer cette publication ?" message={pendingDelete ? `« ${pendingDelete.title} » sera supprimée définitivement. Cette action est irréversible.` : ''} confirmLabel="Supprimer" danger onCancel={() => setPendingDelete(null)} onConfirm={() => void removeItem(pendingDelete)} />
   </div></main>
 }
