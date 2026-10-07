@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ShieldCheck } from 'lucide-react'
-import { getAdminMembers, nominateMemberRole } from '../lib/admin'
+import { getAdminMembers, nominateMemberRole, roleMutationErrorMessage } from '../lib/admin'
 import RoleBadge from '../components/RoleBadge'
 import { normalizeRole } from '../lib/roles'
 
 export default function FounderAdministrators() {
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [message, setMessage] = useState('')
+  const [busyMemberId, setBusyMemberId] = useState('')
+  const [message, setMessage] = useState({ type: '', text: '' })
 
   useEffect(() => {
     let active = true
@@ -17,8 +18,9 @@ export default function FounderAdministrators() {
         const data = await getAdminMembers()
         if (!active) return
         setMembers(data)
-      } catch {
-        setMessage('Les informations administrateurs sont indisponibles pour le moment.')
+      } catch (error) {
+        console.error('[IDA] Lecture des profils pour la gestion des administrateurs échouée.', error)
+        setMessage({ type: 'error', text: roleMutationErrorMessage(error) })
       } finally {
         if (active) setLoading(false)
       }
@@ -28,15 +30,24 @@ export default function FounderAdministrators() {
   }, [])
 
   async function updateRole(memberId, nextRole) {
+    if (busyMemberId) return
     const ok = window.confirm('Confirmez-vous ce changement de rôle ?')
     if (!ok) return
+    setBusyMemberId(memberId)
+    setMessage({ type: '', text: '' })
     try {
       await nominateMemberRole(memberId, nextRole)
-      const refreshed = await getAdminMembers()
-      setMembers(refreshed)
-      setMessage('Le rôle a bien été mis à jour.')
-    } catch {
-      setMessage('Seul le fondateur peut effectuer cette action.')
+      setMessage({ type: 'success', text: nextRole === 'admin' ? 'Le rôle administrateur a été enregistré dans Supabase. Le compte concerné récupérera ses permissions à sa prochaine actualisation de profil.' : 'Le rôle administrateur a été retiré.' })
+      try {
+        const refreshed = await getAdminMembers()
+        setMembers(refreshed)
+      } catch (error) {
+        setMessage({ type: 'info', text: `Le changement de rôle est enregistré, mais la liste n’a pas pu être actualisée : ${roleMutationErrorMessage(error)}` })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: roleMutationErrorMessage(error) })
+    } finally {
+      setBusyMemberId('')
     }
   }
 
@@ -54,7 +65,7 @@ export default function FounderAdministrators() {
           <Link to="/founder" className="button button-outline">Retour au tableau</Link>
         </div>
 
-        {message && <div className="form-notice notice-info">{message}</div>}
+        {message.text && <div className={`form-notice notice-${message.type || 'info'}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text}</div>}
 
         <div className="admin-layout">
           <section className="admin-panel full-width">
@@ -73,7 +84,7 @@ export default function FounderAdministrators() {
                 </div>
                 <div className="row-actions">
                   <RoleBadge role={member.role} />
-                  <button className="button button-outline small-button" type="button" onClick={() => updateRole(member.id, 'member')}>Retirer le rôle</button>
+                  <button className="button button-outline small-button" type="button" disabled={Boolean(busyMemberId)} onClick={() => updateRole(member.id, 'member')}>{busyMemberId === member.id ? 'Mise à jour…' : 'Retirer le rôle'}</button>
                 </div>
               </div>
             ))}</div>}
@@ -93,7 +104,7 @@ export default function FounderAdministrators() {
                   <strong>{[member.first_name, member.last_name].filter(Boolean).join(' ') || '—'}</strong>
                   <small>{member.email || '—'}</small>
                 </div>
-                <button className="button button-primary small-button" type="button" onClick={() => updateRole(member.id, 'admin')}>Nommer administrateur</button>
+                <button className="button button-primary small-button" type="button" disabled={Boolean(busyMemberId)} onClick={() => updateRole(member.id, 'admin')}>{busyMemberId === member.id ? 'Mise à jour…' : 'Nommer administrateur'}</button>
               </div>
             ))}</div>}
           </section>

@@ -15,6 +15,7 @@ const configs = {
       { name: 'slug', label: 'Adresse courte (slug)', required: true, help: 'Générée à partir du titre; vous pouvez la personnaliser.' },
       { name: 'summary', label: 'Résumé', type: 'textarea', required: true },
       { name: 'category', label: 'Domaine d’intervention', type: 'select', options: [
+        ['', 'Non précisé'],
         ['Protection de l’enfant', 'Protection de l’enfant'],
         ['Jeunes filles', 'Protection et autonomisation des jeunes filles'],
         ['Éducation', 'Éducation et soutien scolaire'],
@@ -86,12 +87,22 @@ function contentErrorMessage(error, type) {
   const message = String(error?.message ?? '').toLowerCase()
   const missingColumn = message.match(/could not find the '([^']+)' column of '([^']+)' in the schema cache/i)
   if (missingColumn) {
-    return `Le schéma Supabase de « ${missingColumn[2]} » ne contient pas encore la colonne « ${missingColumn[1]} ». Appliquez la migration Phase 7 dans Supabase, puis actualisez le schéma PostgREST.`
+    return `Le schéma Supabase de « ${missingColumn[2]} » ne contient pas encore la colonne « ${missingColumn[1]} ». Vérifiez les colonnes distantes, appliquez la migration Phase 7 correspondante puis actualisez le schéma PostgREST.`
+  }
+
+  const missingDatabaseColumn = message.match(/column\s+(?:public\.)?([a-z_]+)\.([a-z_]+)\s+does not exist/i)
+  if (missingDatabaseColumn) {
+    return `La colonne « ${missingDatabaseColumn[2]} » n’existe pas dans « ${missingDatabaseColumn[1]} ». Le formulaire a été refusé par le schéma réel Supabase; appliquez la migration correspondante puis rechargez le cache PostgREST.`
   }
 
   const missingTable = message.match(/could not find the table '([^']+)' in the schema cache/i)
   if (missingTable) {
-    return `La table « ${missingTable[1]} » n’existe pas encore dans Supabase. Appliquez la migration Phase 7 puis actualisez le schéma PostgREST.`
+    return `La table « ${missingTable[1]} » n’existe pas encore dans Supabase. Vérifiez d’abord la migration Phase 7, appliquez-la au bon projet puis actualisez le schéma PostgREST.`
+  }
+
+  const missingRelation = message.match(/relation ["'](?:public\.)?([a-z_]+)["'] does not exist/i)
+  if (missingRelation) {
+    return `La table « public.${missingRelation[1]} » n’existe pas dans la base connectée. Exécutez le script de réparation SQL puis actualisez le schéma PostgREST.`
   }
 
   if (error?.code === '42703' || error?.code === 'PGRST204') {
@@ -236,8 +247,8 @@ export default function AdminContentManager({ type }) {
     <div className="dashboard-heading"><div><span className="eyebrow">{config.eyebrow}</span><h1>{config.title}</h1><p>Les visiteurs ne voient que les contenus publiés.</p></div><Link to={backPath} className="button button-outline">Retour à l’administration</Link></div>
     {message.text && <div className={`form-notice notice-${message.type === 'error' ? 'error' : message.type === 'success' ? 'success' : 'info'}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text}</div>}
     {type === 'information' && !canArchive && <p className="form-notice notice-info" role="status">Le schéma Supabase actuel utilise « is_active » sans colonne « status ». La publication et la dépublication restent compatibles ; l’archivage distinct sera disponible après application de la migration Phase 7.</p>}
-    {type === 'news' && !canCategorizeNews && <p className="form-notice notice-info" role="status">La colonne de domaine éditorial n’existe pas encore dans Supabase. Les actualités restent modifiables ; appliquez la migration Phase 7 pour activer leur catégorisation.</p>}
-    {type === 'news' && !canUseNewsImages && <p className="form-notice notice-info" role="status">La colonne d’image n’existe pas encore dans Supabase. Les actualités restent modifiables sans image ; appliquez la migration Phase 7 pour activer ce champ.</p>}
+    {type === 'news' && !canCategorizeNews && <p className="form-notice notice-info" role="status">La colonne `category` est absente du schéma Supabase actuel. Les actualités restent créables et modifiables sans catégorie ; appliquez la migration Phase 7 pour activer ce champ.</p>}
+    {type === 'news' && !canUseNewsImages && <p className="form-notice notice-info" role="status">La colonne `image_url` est absente du schéma Supabase actuel. Les actualités restent créables et modifiables sans image ; appliquez la migration Phase 7 pour activer ce champ.</p>}
     <div className="admin-layout content-manager-layout">
       <section className="admin-panel admin-content-form" id="content-form"><div className="panel-header"><div><span className="eyebrow">{editing ? 'Modification' : 'Nouvelle publication'}</span><h2>{editing ? 'Modifier le contenu' : 'Créer un contenu'}</h2></div><FilePlus2 size={22} /></div>
         <form className="phase5-form" onSubmit={submit}>

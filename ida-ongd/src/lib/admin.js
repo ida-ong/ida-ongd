@@ -101,3 +101,17 @@ export async function nominateMemberRole(targetId, nextRole) {
   if (error) throw error
   return data
 }
+
+export function roleMutationErrorMessage(error) {
+  const message = String(error?.message ?? '').toLowerCase()
+  if (error?.code === 'PGRST202' || error?.code === '42883') {
+    return 'La fonction Supabase de changement de rôle est absente du cache. Appliquez la migration Phase 4, puis rechargez le schéma PostgREST.'
+  }
+  if (error?.code === '42501' || message.includes('permission denied') || message.includes('row-level security')) {
+    return 'Supabase a refusé la nomination. Vérifiez que votre compte est bien fondateur et que la policy/RPC de changement de rôle est appliquée.'
+  }
+  if (error?.code === '22023') return error.message || 'La nomination est refusée par une règle métier (par exemple le seuil d’éligibilité du leader).'
+  if (error?.code === 'P0002') return 'Le profil à modifier est introuvable dans Supabase.'
+  if (message.includes('failed to fetch') || message.includes('network')) return 'Supabase est inaccessible. Vérifiez la connexion puis réessayez.'
+  return error?.message || 'Le changement de rôle a échoué. Consultez le code d’erreur Supabase et les policies RLS.'
+}

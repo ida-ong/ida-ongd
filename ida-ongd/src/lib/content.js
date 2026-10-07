@@ -12,6 +12,13 @@ const writableColumns = {
   information: ['title', 'content', 'priority', 'status'],
 }
 
+const priorityToDatabase = { normal: 1, important: 2, urgent: 3 }
+const priorityFromDatabase = { 1: 'normal', 2: 'important', 3: 'urgent', normal: 'normal', important: 'important', urgent: 'urgent' }
+
+function normalizeInformationPriority(value) {
+  return priorityFromDatabase[String(value ?? '').trim().toLowerCase()] ?? 'normal'
+}
+
 let informationStatusColumnAvailable = true
 const newsOptionalColumnsAvailable = { category: false, image_url: false }
 
@@ -57,7 +64,11 @@ export async function getPublishedContent(type, { limit } = {}) {
   }
   const { data, error } = result
   if (error) throw error
-  return (data ?? []).map((item) => type === 'news' ? { ...item, summary: item.excerpt } : item)
+  return (data ?? []).map((item) => {
+    if (type === 'news') return { ...item, summary: item.excerpt }
+    if (type === 'information') return { ...item, priority: normalizeInformationPriority(item.priority) }
+    return item
+  })
 }
 
 export async function getNewsBySlug(slug) {
@@ -114,8 +125,12 @@ export async function getAdminContent(type) {
   if (error) throw error
   return (data ?? []).map((item) => {
     if (type === 'news') return { ...item, summary: item.excerpt }
-    if (type === 'information' && !informationStatusColumnAvailable) {
-      return { ...item, status: item.is_active ? 'published' : 'draft' }
+    if (type === 'information') {
+      return {
+        ...item,
+        priority: normalizeInformationPriority(item.priority),
+        ...(!informationStatusColumnAvailable ? { status: item.is_active ? 'published' : 'draft' } : {}),
+      }
     }
     return item
   })
@@ -128,6 +143,9 @@ export async function saveAdminContent(type, values, userId) {
   const normalizedFields = Object.fromEntries(allowedColumns
     .filter((key) => Object.hasOwn(fields, key))
     .map((key) => [key, ['image_url', 'location', 'date_action', 'category'].includes(key) && fields[key] === '' ? null : fields[key]]))
+  if (type === 'information' && Object.hasOwn(normalizedFields, 'priority')) {
+    normalizedFields.priority = priorityToDatabase[normalizeInformationPriority(normalizedFields.priority)]
+  }
   if (type === 'news') {
     if (!newsOptionalColumnsAvailable.category) delete normalizedFields.category
     if (!newsOptionalColumnsAvailable.image_url) delete normalizedFields.image_url

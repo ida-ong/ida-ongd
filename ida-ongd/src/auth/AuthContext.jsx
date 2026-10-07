@@ -89,8 +89,35 @@ export function AuthProvider({ children }) {
   }, [clearRegistrationPending, readProfile])
 
   const refreshProfile = useCallback(async () => {
-    if (auth.session) await readProfile(auth.session)
-  }, [auth.session, readProfile])
+    const session = auth.session
+    if (!session?.user) return
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+    setAuth((current) => {
+      if (current.user?.id !== session.user.id) return current
+      return { ...current, profile: data ?? null, profileError: error ?? null }
+    })
+  }, [auth.session])
+
+  const activeUserId = auth.session?.user?.id
+
+  useEffect(() => {
+    if (!activeUserId) return undefined
+    let active = true
+    const refreshIfActive = () => {
+      if (active && document.visibilityState === 'visible') {
+        void refreshProfile().catch((error) => console.error('[IDA] Actualisation du profil impossible.', error))
+      }
+    }
+    const interval = window.setInterval(refreshIfActive, 15_000)
+    window.addEventListener('focus', refreshIfActive)
+    document.addEventListener('visibilitychange', refreshIfActive)
+    return () => {
+      active = false
+      window.clearInterval(interval)
+      window.removeEventListener('focus', refreshIfActive)
+      document.removeEventListener('visibilitychange', refreshIfActive)
+    }
+  }, [activeUserId, refreshProfile])
   const role = normalizeRole(auth.profile?.role)
 
   return (
