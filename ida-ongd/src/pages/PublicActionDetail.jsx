@@ -3,6 +3,7 @@ import { ArrowLeft, HeartHandshake } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { formatJoinDate } from '../lib/date'
 import { getPublicActionById } from '../lib/content'
+import { setPageMetadata } from '../lib/seo'
 
 export default function PublicActionDetail() {
   const { id } = useParams()
@@ -15,6 +16,16 @@ export default function PublicActionDetail() {
       .catch(() => { if (active) setState({ id, action: null, loading: false, error: true }) })
     return () => { active = false }
   }, [id])
+
+  useEffect(() => {
+    if (!state.action || state.id !== id) return
+    setPageMetadata({
+      title: `${state.action.title} — Actions ONGD IDA`,
+      description: state.action.description?.slice(0, 160) || state.action.objective || 'Action communautaire de l’ONGD IDA à Lubumbashi, RDC.',
+      path: `/actions/${encodeURIComponent(id)}`,
+      image: state.action.image_url || undefined,
+    })
+  }, [id, state.action, state.id])
 
   if (state.loading || state.id !== id) return <main className="page-section inner-page"><div className="container"><p className="content-state" role="status">Chargement de l’action…</p></div></main>
   if (!state.action) return <main className="page-section inner-page"><div className="container"><div className="coming-soon-card"><HeartHandshake size={34} /><h1>{state.error ? 'Action indisponible' : 'Action introuvable'}</h1><p>{state.error ? 'Impossible de charger cette action pour le moment.' : 'Cette action n’est pas publiée ou n’existe plus.'}</p><Link className="button button-primary" to="/actions"><ArrowLeft size={16} /> Retour aux actions</Link></div></div></main>

@@ -3,6 +3,7 @@ import { ArrowLeft, Newspaper } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { formatJoinDate } from '../lib/date'
 import { getNewsBySlug } from '../lib/content'
+import { setPageMetadata } from '../lib/seo'
 
 export default function NewsDetail() {
   const { slug } = useParams()
@@ -15,6 +16,16 @@ export default function NewsDetail() {
       .catch(() => { if (active) setState({ slug, article: null, loading: false, error: true }) })
     return () => { active = false }
   }, [slug])
+
+  useEffect(() => {
+    if (!state.article || state.slug !== slug) return
+    setPageMetadata({
+      title: `${state.article.title} — Actualités ONGD IDA`,
+      description: state.article.summary || state.article.content?.slice(0, 160) || 'Actualité de l’ONGD IDA à Lubumbashi, RDC.',
+      path: `/actualites/${encodeURIComponent(slug)}`,
+      image: state.article.image_url || undefined,
+    })
+  }, [slug, state.article, state.slug])
 
   if (state.loading || state.slug !== slug) return <main className="page-section inner-page"><div className="container"><p className="content-state" role="status">Chargement de l’article…</p></div></main>
   if (!state.article) return <main className="page-section inner-page"><div className="container"><div className="coming-soon-card"><Newspaper size={34} /><h1>{state.error ? 'Article indisponible' : 'Article introuvable'}</h1><p>{state.error ? 'Impossible de charger cet article pour le moment.' : 'Cet article n’est pas publié ou n’existe plus.'}</p><Link className="button button-primary" to="/actualites"><ArrowLeft size={16} /> Retour aux actualités</Link></div></div></main>

@@ -12,7 +12,7 @@ export default function AdminMembers() {
   const [members, setMembers] = useState([])
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
-  const [neighborhoodFilter, setNeighborhoodFilter] = useState('all')
+  const [geoFilter, setGeoFilter] = useState({ province: '', locality: '', commune: '', quartier: '', road: '', ruralUnit: '', grouping: '', village: '' })
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [pendingRoleChange, setPendingRoleChange] = useState(null)
@@ -34,16 +34,65 @@ export default function AdminMembers() {
     return () => { active = false }
   }, [])
 
-  const neighborhoodOptions = useMemo(() => [...new Set(members.map((member) => member.neighborhood_name).filter(Boolean))], [members])
+  const uniqueOptions = (rows, idField, nameField) => [...new Map(rows.filter((row) => row[idField] && row[nameField]).map((row) => [row[idField], { id: row[idField], name: row[nameField], locality_type: row.geo_locality_type }])).values()].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+  const provinceOptions = useMemo(() => uniqueOptions(members, 'geo_province_id', 'geo_province_name'), [members])
+  const provinceMembers = useMemo(() => members.filter((member) => !geoFilter.province || member.geo_province_id === geoFilter.province), [members, geoFilter.province])
+  const localityOptions = useMemo(() => uniqueOptions(provinceMembers, 'geo_locality_id', 'geo_locality_name'), [provinceMembers])
+  const localityMembers = useMemo(() => provinceMembers.filter((member) => !geoFilter.locality || member.geo_locality_id === geoFilter.locality), [provinceMembers, geoFilter.locality])
+  const communeOptions = useMemo(() => uniqueOptions(localityMembers, 'geo_commune_id', 'geo_commune_name'), [localityMembers])
+  const communeMembers = useMemo(() => localityMembers.filter((member) => !geoFilter.commune || member.geo_commune_id === geoFilter.commune), [localityMembers, geoFilter.commune])
+  const quartierOptions = useMemo(() => uniqueOptions(communeMembers, 'geo_quartier_id', 'geo_quartier_name'), [communeMembers])
+  const quartierMembers = useMemo(() => communeMembers.filter((member) => !geoFilter.quartier || member.geo_quartier_id === geoFilter.quartier), [communeMembers, geoFilter.quartier])
+  const roadOptions = useMemo(() => uniqueOptions(quartierMembers, 'geo_road_id', 'geo_road_name'), [quartierMembers])
+  const ruralUnitOptions = useMemo(() => uniqueOptions(localityMembers, 'geo_rural_unit_id', 'geo_rural_unit_name'), [localityMembers])
+  const ruralMembers = useMemo(() => localityMembers.filter((member) => !geoFilter.ruralUnit || member.geo_rural_unit_id === geoFilter.ruralUnit), [localityMembers, geoFilter.ruralUnit])
+  const groupingOptions = useMemo(() => uniqueOptions(ruralMembers, 'geo_groupement_id', 'geo_groupement_name'), [ruralMembers])
+  const groupingMembers = useMemo(() => ruralMembers.filter((member) => !geoFilter.grouping || member.geo_groupement_id === geoFilter.grouping), [ruralMembers, geoFilter.grouping])
+  const villageOptions = useMemo(() => uniqueOptions(groupingMembers, 'geo_village_id', 'geo_village_name'), [groupingMembers])
 
   const filteredMembers = useMemo(() => members.filter((member) => {
     const term = search.trim().toLowerCase()
     const text = [member.first_name, member.last_name, member.member_number, member.email].filter(Boolean).join(' ').toLowerCase()
     const matchesText = !term || text.includes(term)
     const matchesRole = roleFilter === 'all' || normalizeRole(member.role) === roleFilter
-    const matchesNeighborhood = neighborhoodFilter === 'all' || member.neighborhood_name === neighborhoodFilter
-    return matchesText && matchesRole && matchesNeighborhood
-  }), [members, neighborhoodFilter, roleFilter, search])
+    const matchesGeo = (!geoFilter.province || member.geo_province_id === geoFilter.province)
+      && (!geoFilter.locality || member.geo_locality_id === geoFilter.locality)
+      && (!geoFilter.commune || member.geo_commune_id === geoFilter.commune)
+      && (!geoFilter.quartier || member.geo_quartier_id === geoFilter.quartier)
+      && (!geoFilter.road || member.geo_road_id === geoFilter.road)
+      && (!geoFilter.ruralUnit || member.geo_rural_unit_id === geoFilter.ruralUnit)
+      && (!geoFilter.grouping || member.geo_groupement_id === geoFilter.grouping)
+      && (!geoFilter.village || member.geo_village_id === geoFilter.village)
+    return matchesText && matchesRole && matchesGeo
+  }), [members, geoFilter, roleFilter, search])
+
+  function updateGeoFilter(field, value) {
+    setGeoFilter((current) => {
+      const next = { ...current, [field]: value }
+      const descendants = {
+        province: ['locality', 'commune', 'quartier', 'road', 'ruralUnit', 'grouping', 'village'],
+        locality: ['commune', 'quartier', 'road', 'ruralUnit', 'grouping', 'village'],
+        commune: ['quartier', 'road'],
+        quartier: ['road'],
+        ruralUnit: ['grouping', 'village'],
+        grouping: ['village'],
+      }
+      descendants[field]?.forEach((child) => { next[child] = '' })
+      return next
+    })
+  }
+
+  const localityIsRural = localityOptions.find((locality) => locality.id === geoFilter.locality)?.locality_type === 'territory'
+  const locationLabel = (member) => [
+    member.geo_province_name,
+    member.geo_locality_name,
+    member.geo_commune_name,
+    member.geo_quartier_name,
+    member.geo_road_name,
+    member.geo_rural_unit_name,
+    member.geo_groupement_name,
+    member.geo_village_name,
+  ].filter(Boolean).join(' › ') || member.neighborhood_name || '—'
 
   async function handleLeaderNomination(memberId, nextRole) {
     try {
@@ -83,12 +132,42 @@ export default function AdminMembers() {
             <option value="founder">Fondateur</option>
           </select>
 
-          <select value={neighborhoodFilter} onChange={(event) => setNeighborhoodFilter(event.target.value)}>
-            <option value="all">Tous les quartiers</option>
-            {neighborhoodOptions.map((neighborhood) => (
-              <option value={neighborhood} key={neighborhood}>{neighborhood}</option>
-            ))}
+          <select value={geoFilter.province} onChange={(event) => updateGeoFilter('province', event.target.value)}>
+            <option value="">Toutes les provinces</option>
+            {provinceOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
           </select>
+          <select value={geoFilter.locality} onChange={(event) => updateGeoFilter('locality', event.target.value)} disabled={!provinceMembers.length}>
+            <option value="">Toutes les villes / territoires</option>
+            {localityOptions.map((item) => <option value={item.id} key={item.id}>{item.name}{item.locality_type === 'territory' ? ' · territoire' : ''}</option>)}
+          </select>
+          {!localityIsRural && <>
+            <select value={geoFilter.commune} onChange={(event) => updateGeoFilter('commune', event.target.value)} disabled={!localityMembers.length}>
+              <option value="">Toutes les communes</option>
+              {communeOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+            <select value={geoFilter.quartier} onChange={(event) => updateGeoFilter('quartier', event.target.value)} disabled={!communeMembers.length}>
+              <option value="">Tous les quartiers</option>
+              {quartierOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+            <select value={geoFilter.road} onChange={(event) => updateGeoFilter('road', event.target.value)} disabled={!quartierMembers.length}>
+              <option value="">Toutes les avenues / rues</option>
+              {roadOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+          </>}
+          {localityIsRural && <>
+            <select value={geoFilter.ruralUnit} onChange={(event) => updateGeoFilter('ruralUnit', event.target.value)} disabled={!localityMembers.length}>
+              <option value="">Tous les secteurs / chefferies</option>
+              {ruralUnitOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+            <select value={geoFilter.grouping} onChange={(event) => updateGeoFilter('grouping', event.target.value)} disabled={!ruralMembers.length}>
+              <option value="">Tous les groupements</option>
+              {groupingOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+            <select value={geoFilter.village} onChange={(event) => updateGeoFilter('village', event.target.value)} disabled={!groupingMembers.length}>
+              <option value="">Tous les villages</option>
+              {villageOptions.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+          </>}
         </section>
 
         <div className="table-wrapper">
@@ -97,7 +176,7 @@ export default function AdminMembers() {
               <tr>
                 <th>Membre</th>
                 <th>Contact</th>
-                <th>Quartier</th>
+                <th>Localisation</th>
                 <th>Rôle</th>
                 <th>Réseau</th>
                 <th>Date</th>
@@ -119,7 +198,7 @@ export default function AdminMembers() {
                     <span>{member.email || '—'}</span>
                     <small>{member.whatsapp || '—'}</small>
                   </td>
-                  <td>{member.neighborhood_name || '—'}</td>
+                  <td>{locationLabel(member)}</td>
                   <td><RoleBadge role={member.role} /></td>
                   <td>{member.network_count ?? 0}</td>
                   <td>{member.created_at ? new Date(member.created_at).toLocaleDateString('fr-FR') : '—'}</td>

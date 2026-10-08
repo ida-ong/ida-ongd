@@ -3,14 +3,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { CheckCircle2 } from 'lucide-react'
 import AuthFormShell from '../components/AuthFormShell'
 import FormField from '../components/FormField'
+import GeoLocationFields from '../components/GeoLocationFields'
 import { friendlyAuthError } from '../lib/authErrors'
 import { clearReferralCode, getSavedReferralCode } from '../lib/community'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../auth/useAuth'
 
-const initialValues = { firstName: '', lastName: '', phone: '', whatsapp: '', email: '', password: '', passwordConfirm: '', neighborhoodId: '' }
+const initialValues = { firstName: '', lastName: '', phone: '', whatsapp: '', email: '', password: '', passwordConfirm: '' }
 
-function validate(values, neighborhoods) {
+function validate(values) {
   const errors = {}
   if (!values.firstName.trim()) errors.firstName = 'Le prénom est obligatoire.'
   if (!values.lastName.trim()) errors.lastName = 'Le nom est obligatoire.'
@@ -19,7 +20,6 @@ function validate(values, neighborhoods) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) errors.email = 'Saisissez une adresse email valide.'
   if (values.password.length < 10 || !/[A-Za-z]/.test(values.password) || !/\d/.test(values.password)) errors.password = 'Utilisez au moins 10 caractères, dont une lettre et un chiffre.'
   if (values.passwordConfirm !== values.password) errors.passwordConfirm = 'Les deux mots de passe ne correspondent pas.'
-  if (neighborhoods.length > 0 && !values.neighborhoodId) errors.neighborhoodId = 'Veuillez choisir votre quartier.'
   return errors
 }
 
@@ -27,41 +27,11 @@ export default function Register() {
   const { markRegistrationPending, clearRegistrationPending } = useAuth()
   const navigate = useNavigate()
   const [values, setValues] = useState(initialValues)
+  const [geoLocation, setGeoLocation] = useState({ geo_province_id: '', geo_locality_id: '', geo_commune_id: '', geo_quartier_id: '', geo_road_id: '', geo_rural_unit_id: '', geo_groupement_id: '', geo_village_id: '' })
   const [errors, setErrors] = useState({})
-  const [neighborhoods, setNeighborhoods] = useState([])
-  const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(true)
-  const [neighborhoodNotice, setNeighborhoodNotice] = useState('')
   const [referralCode, setReferralCode] = useState(getSavedReferralCode)
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState({ type: '', message: '' })
-
-  useEffect(() => {
-    let active = true
-    async function loadNeighborhoods() {
-      try {
-        const { data, error } = await supabase.from('neighborhoods').select('id, name').eq('is_active', true).order('name')
-        if (!active) return
-        if (error) {
-          setNeighborhoods([])
-          setNeighborhoodNotice('La liste des quartiers est indisponible pour le moment. Vous pouvez créer votre compte sans la renseigner ; votre quartier pourra être ajouté plus tard.')
-        } else if (!data?.length) {
-          setNeighborhoods([])
-          setNeighborhoodNotice('Aucun quartier actif n’est configuré dans la base IDA. Vous pouvez terminer l’inscription sans quartier ; l’administration pourra compléter ce renseignement après validation de la liste officielle. La localisation automatique n’est pas activée pour le moment.')
-        } else {
-          setNeighborhoods(data)
-          setNeighborhoodNotice('')
-        }
-      } catch {
-        if (!active) return
-        setNeighborhoods([])
-        setNeighborhoodNotice('La liste des quartiers est momentanément inaccessible. Vous pouvez poursuivre votre inscription sans la renseigner.')
-      } finally {
-        if (active) setLoadingNeighborhoods(false)
-      }
-    }
-    void loadNeighborhoods()
-    return () => { active = false }
-  }, [])
 
   function update(event) {
     const { name, value } = event.target
@@ -72,13 +42,12 @@ export default function Register() {
 
   async function submit(event) {
     event.preventDefault()
-    const nextErrors = validate(values, neighborhoods)
+    const nextErrors = validate(values)
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length || loading) return
     setLoading(true)
     setStatus({ type: '', message: '' })
     try {
-      const neighborhood = neighborhoods.find((item) => String(item.id) === values.neighborhoodId)
       const { data, error } = await supabase.auth.signUp({
         email: values.email.trim(),
         password: values.password,
@@ -89,7 +58,7 @@ export default function Register() {
             last_name: values.lastName.trim(),
             phone: values.phone.trim(),
             whatsapp: values.whatsapp.trim(),
-            ...(neighborhood ? { neighborhood_id: neighborhood.id } : {}),
+            ...Object.fromEntries(Object.entries(geoLocation).filter(([, id]) => id)),
             ...(referralCode ? { referral_code: referralCode.trim() } : {}),
           },
         },
@@ -130,11 +99,7 @@ export default function Register() {
         <FormField label="Numéro WhatsApp" name="whatsapp" type="tel" autoComplete="tel" placeholder="+243…" value={values.whatsapp} onChange={update} error={errors.whatsapp} />
       </div>
       <FormField label="Adresse email" name="email" type="email" autoComplete="email" placeholder="vous@exemple.com" value={values.email} onChange={update} error={errors.email} />
-      <FormField label={neighborhoods.length ? 'Quartier' : 'Quartier (facultatif pour le moment)'} name="neighborhoodId" as="select" value={values.neighborhoodId} onChange={update} error={errors.neighborhoodId} disabled={loadingNeighborhoods || neighborhoods.length === 0}>
-        <option value="">{loadingNeighborhoods ? 'Chargement des quartiers…' : neighborhoods.length ? 'Sélectionnez votre quartier' : 'Indisponible — vous pourrez le renseigner plus tard'}</option>
-        {neighborhoods.map((neighborhood) => <option value={neighborhood.id} key={neighborhood.id}>{neighborhood.name}</option>)}
-      </FormField>
-      {neighborhoodNotice && <p className="neighborhood-notice" role="status">{neighborhoodNotice}</p>}
+      <GeoLocationFields value={geoLocation} onChange={setGeoLocation} errors={errors} />
       <FormField label="Mot de passe" name="password" type="password" autoComplete="new-password" value={values.password} onChange={update} error={errors.password} />
       <FormField label="Confirmer le mot de passe" name="passwordConfirm" type="password" autoComplete="new-password" value={values.passwordConfirm} onChange={update} error={errors.passwordConfirm} />
       <p className="password-hint">10 caractères minimum, avec au moins une lettre et un chiffre.</p>

@@ -57,24 +57,50 @@ export async function getAdminStats() {
 export async function getAdminMembers() {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, first_name, last_name, email, phone, whatsapp, role, member_number, affiliate_code, referred_by, neighborhood_id, created_at, is_active')
+    .select('id, first_name, last_name, email, phone, whatsapp, role, member_number, affiliate_code, referred_by, neighborhood_id, created_at, is_active, geo_province_id, geo_locality_id, geo_commune_id, geo_quartier_id, geo_road_id, geo_rural_unit_id, geo_groupement_id, geo_village_id')
     .order('created_at', { ascending: false })
 
   if (error) throw error
 
   const profiles = data ?? []
-  const neighborhoodIds = [...new Set(profiles.filter((profile) => profile.neighborhood_id).map((profile) => profile.neighborhood_id))]
-  const { data: neighborhoodsData, error: neighborhoodsError } = neighborhoodIds.length
-    ? await supabase.from('neighborhoods').select('id, name').in('id', neighborhoodIds)
-    : { data: [], error: null }
+  async function loadNames(table, idColumn) {
+    const ids = [...new Set(profiles.map((profile) => profile[idColumn]).filter(Boolean))]
+    if (!ids.length) return new Map()
+    const { data: rows, error: lookupError } = await supabase.from(table).select('*').in('id', ids)
+    if (lookupError) throw lookupError
+    return new Map((rows ?? []).map((row) => [row.id, row]))
+  }
 
-  if (neighborhoodsError) throw neighborhoodsError
+  const [neighborhoodMap, provinceMap, localityMap, communeMap, quartierMap, roadMap, ruralUnitMap, groupingMap, villageMap] = await Promise.all([
+    loadNames('neighborhoods', 'neighborhood_id'),
+    loadNames('ida_geo_provinces', 'geo_province_id'),
+    loadNames('ida_geo_localities', 'geo_locality_id'),
+    loadNames('ida_geo_communes', 'geo_commune_id'),
+    loadNames('ida_geo_quartiers', 'geo_quartier_id'),
+    loadNames('ida_geo_roads', 'geo_road_id'),
+    loadNames('ida_geo_rural_units', 'geo_rural_unit_id'),
+    loadNames('ida_geo_groupements', 'geo_groupement_id'),
+    loadNames('ida_geo_villages', 'geo_village_id'),
+  ])
 
-  const neighborhoodMap = new Map((neighborhoodsData ?? []).map((neighborhood) => [neighborhood.id, neighborhood.name]))
+  const label = (map, id) => {
+    const row = id ? map.get(id) : null
+    if (!row) return ''
+    return `${row.name}${row.verification_status === 'needs_review' ? ' (à vérifier)' : ''}`
+  }
 
   return profiles.map((profile) => ({
     ...profile,
-    neighborhood_name: neighborhoodMap.get(profile.neighborhood_id) ?? '—',
+    neighborhood_name: label(quartierMap, profile.geo_quartier_id) || neighborhoodMap.get(profile.neighborhood_id)?.name || '—',
+    geo_province_name: label(provinceMap, profile.geo_province_id),
+    geo_locality_name: label(localityMap, profile.geo_locality_id),
+    geo_locality_type: localityMap.get(profile.geo_locality_id)?.locality_type ?? '',
+    geo_commune_name: label(communeMap, profile.geo_commune_id),
+    geo_quartier_name: label(quartierMap, profile.geo_quartier_id),
+    geo_road_name: label(roadMap, profile.geo_road_id),
+    geo_rural_unit_name: label(ruralUnitMap, profile.geo_rural_unit_id),
+    geo_groupement_name: label(groupingMap, profile.geo_groupement_id),
+    geo_village_name: label(villageMap, profile.geo_village_id),
     network_count: countNetworkSizeForMember(profile, profiles),
   }))
 }

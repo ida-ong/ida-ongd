@@ -11,7 +11,7 @@
 
 ## Blocage Vercel observé
 
-La version publique `https://ida-ongd.vercel.app/` a été ouverte le 6 octobre 2026 et affiche l’erreur de démarrage « Configuration de l’application incomplète ». La console indique que `VITE_SUPABASE_URL` et la clé publique de navigateur ne sont pas injectées dans le build de production. Le CLI Vercel n’est pas installé ni lié dans ce workspace; ces variables n’ont donc pas pu être corrigées à distance.
+Lors du contrôle du 6 octobre 2026, la version publique `https://ongida.vercel.app/` affichait l’erreur de démarrage « Configuration de l’application incomplète ». La console indiquait que `VITE_SUPABASE_URL` et la clé publique de navigateur n’étaient pas injectées dans le build de production. Le CLI Vercel n’était pas installé ni lié dans ce workspace; ces variables n’ont donc pas pu être corrigées à distance.
 
 ## Décisions requises avant l’implémentation
 

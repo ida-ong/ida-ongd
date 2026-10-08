@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /founder
+Disallow: /leader
+Disallow: /dashboard
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /confirmation-email
+Disallow: /mot-de-passe-oublie
+
+Sitemap: https://ongida.vercel.app/sitemap.xml

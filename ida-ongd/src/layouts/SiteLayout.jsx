@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import WhatsAppContact from '../components/WhatsAppContact'
 import heroImage from '../assets/hero.png'
+import { setPageMetadata } from '../lib/seo'
 
 export default function SiteLayout() {
   const { pathname } = useLocation()
@@ -22,32 +23,11 @@ export default function SiteLayout() {
       [/^\/informations/, 'Informations importantes — ONGD IDA', 'Informations officielles de l’ONGD IDA, Initiative Dignité et Autonomisation.'],
       [/^\/dons/, 'Faire un don — ONGD IDA', 'Soutenez la mission de l’ONGD IDA : protection de l’enfant, éducation, autonomisation des jeunes filles et développement communautaire.'],
       [/^\/contact/, 'Contact — ONGD IDA', 'Contacter l’ONGD IDA à Lubumbashi, Haut-Katanga, République démocratique du Congo.'],
+      [/^\/inscription/, 'Devenir membre — ONGD IDA', 'Rejoindre la communauté de l’ONGD IDA à Lubumbashi et participer à la mobilisation communautaire.'],
     ]
     const [, title, description] = pages.find(([path]) => path.test(pathname)) ?? [null, 'ONGD IDA — Initiative Dignité et Autonomisation', 'Protéger les enfants, autonomiser les jeunes filles et contribuer au développement des communautés vulnérables.']
-    document.title = title
-    let descriptionTag = document.querySelector('meta[name="description"]')
-    if (!descriptionTag) {
-      descriptionTag = document.createElement('meta')
-      descriptionTag.name = 'description'
-      document.head.append(descriptionTag)
-    }
-    descriptionTag.content = description
-
-    const meta = (property, content) => {
-      let tag = document.querySelector(`meta[property="${property}"]`)
-      if (!tag) {
-        tag = document.createElement('meta')
-        tag.setAttribute('property', property)
-        document.head.append(tag)
-      }
-      tag.content = content
-    }
-    meta('og:type', 'website')
-    meta('og:title', title)
-    meta('og:description', description)
-    meta('og:url', new URL(pathname, window.location.origin).href)
-    meta('og:image', new URL(heroImage, window.location.origin).href)
-    meta('og:locale', 'fr_FR')
+    const noIndex = /^\/(admin|founder|leader|dashboard|connexion|confirmation-email|mot-de-passe-oublie)(\/|$)/.test(pathname)
+    setPageMetadata({ title, description, path: pathname, image: heroImage, noIndex })
   }, [pathname])
 
   return <><Navbar /><Outlet /><Footer /><WhatsAppContact /></>

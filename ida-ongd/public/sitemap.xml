@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ongida.vercel.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://ongida.vercel.app/a-propos</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ongida.vercel.app/objectifs</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/protection-de-l-enfant</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/protection-et-autonomisation-des-jeunes-filles</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/education</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/formation-professionnelle</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/formation-numerique</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/accompagnement-social-et-psychosocial</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/aide-humanitaire</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/prevention-des-violences</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/entrepreneuriat-et-autonomisation-economique</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/domaines/developpement-communautaire</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ongida.vercel.app/actions</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ongida.vercel.app/actualites</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ongida.vercel.app/informations</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ongida.vercel.app/dons</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://ongida.vercel.app/contact</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+</urlset>

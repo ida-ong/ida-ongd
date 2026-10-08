@@ -2,7 +2,7 @@
   "name": "ida-ongd",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://ida-ongd.vercel.app",
+  "homepage": "https://ongida.vercel.app",
   "type": "module",
   "scripts": {
     "dev": "vite",
